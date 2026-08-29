@@ -114,3 +114,142 @@
 
 </body>
 </html>
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Math & English Question Solver</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { background-color: #f0f4f8; color: #333; line-height: 1.6; padding: 20px; }
+        .container { max-width: 600px; margin: 0 auto; background: #ffffff; padding: 25px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        header { text-align: center; margin-bottom: 20px; }
+        h1 { color: #2c3e50; font-size: 1.8rem; margin-bottom: 8px; }
+        p.subtitle { color: #666; font-size: 0.95rem; }
+        
+        /* Tab Navigation */
+        .tab-buttons { display: flex; gap: 10px; margin-bottom: 20px; }
+        .tab-btn { flex: 1; padding: 12px; border: none; background: #e9ecef; font-size: 1rem; font-weight: bold; cursor: pointer; border-radius: 8px; transition: 0.3s; }
+        .tab-btn.active { background: #007bff; color: white; }
+        
+        /* Form Inputs */
+        .solver-box { background: #f8f9fa; padding: 15px; border-radius: 8px; border: 1px solid #e2e8f0; }
+        label { font-weight: bold; display: block; margin-bottom: 8px; color: #495057; }
+        input[type="text"] { width: 100%; padding: 12px; font-size: 1rem; border: 1px solid #ced4da; border-radius: 6px; margin-bottom: 15px; outline: none; }
+        button.solve-btn { width: 100%; padding: 12px; background: #28a745; color: white; border: none; font-size: 1.1rem; font-weight: bold; border-radius: 6px; cursor: pointer; }
+        button.solve-btn:hover { background: #218838; }
+
+        /* Output Result Box */
+        .result-box { margin-top: 20px; padding: 15px; background: #e7f5ff; border-left: 5px solid #007bff; border-radius: 4px; display: none; }
+        .result-box h3 { color: #0056b3; font-size: 1.1rem; margin-bottom: 5px; }
+        .result-box p { font-size: 1.05rem; }
+
+        /* Guide Section */
+        .guide-section { margin-top: 25px; font-size: 0.9rem; color: #555; }
+        .guide-section h4 { margin-bottom: 5px; color: #333; }
+        ul { margin-left: 20px; margin-top: 5px; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <h1>🤖 AI Question Solver</h1>
+        <p class="subtitle">Practice & Solve Math or English Questions instantly!</p>
+    </header>
+
+    <!-- Tabs for Selection -->
+    <div class="tab-buttons">
+        <button class="tab-btn active" onclick="switchSubject('math')">📚 Math Solver</button>
+        <button class="tab-btn" onclick="switchSubject('english')">📖 English Solver</button>
+    </div>
+
+    <!-- Solver Box -->
+    <div class="solver-box">
+        <label id="input-label" for="user-question">Enter Math Question (e.g., 50 + 25):</label>
+        <input type="text" id="user-question" placeholder="Type your question here...">
+        <button class="solve-btn" onclick="solveQuestion()">Solve Question ⚡</button>
+    </div>
+
+    <!-- Result Box -->
+    <div id="result-box" class="result-box">
+        <h3 id="result-title">Answer:</h3>
+        <p id="result-text"></p>
+    </div>
+
+    <!-- Info Section -->
+    <div class="guide-section">
+        <h4>⚡ How It Works:</h4>
+        <ul>
+            <li>Choose either Math or English.</li>
+            <li>Type your question and click Solve Question.</li>
+            <li>Get fast and simple answers!</li>
+        </ul>
+    </div>
+</div>
+
+<script>
+    let currentSubject = 'math';
+
+    function switchSubject(subject) {
+        currentSubject = subject;
+        document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+        document.getElementById('result-box').style.display = 'none';
+        document.getElementById('user-question').value = '';
+
+        if (subject === 'math') {
+            event.target.classList.add('active');
+            document.getElementById('input-label').innerText = 'Enter Math Question (e.g., 50 + 25 or 100 / 5):';
+            document.getElementById('user-question').placeholder = 'e.g., 20 * 6';
+        } else {
+            event.target.classList.add('active');
+            document.getElementById('input-label').innerText = 'Enter English Word/Grammar Question:';
+            document.getElementById('user-question').placeholder = 'e.g., Antonym of Good / Synonym of Big';
+        }
+    }
+
+    function solveQuestion() {
+        const input = document.getElementById('user-question').value.trim();
+        const resultBox = document.getElementById('result-box');
+        const resultText = document.getElementById('result-text');
+        const resultTitle = document.getElementById('result-title');
+
+        if (!input) {
+            alert('Please enter a question first!');
+            return;
+        }
+
+        resultBox.style.display = 'block';
+
+        if (currentSubject === 'math') {
+            try {
+                // Basic Math Evaluation
+                const cleanInput = input.replace(/×/g, '*').replace(/÷/g, '/');
+                const answer = eval(cleanInput);
+                resultTitle.innerText = `Math Result [ ${input} ]`;
+                resultText.innerText = `Answer: ${answer}`;
+            } catch (e) {
+                resultTitle.innerText = `Math Result`;
+                resultText.innerText = `Please enter a valid mathematical expression (e.g., 50 + 25).`;
+            }
+        } else {
+            // Basic English Sample Matcher
+            resultTitle.innerText = `English Query [ ${input} ]`;
+            const lower = input.toLowerCase();
+
+            if (lower.includes('good')) {
+                resultText.innerText = `Antonym of "Good" → Bad`;
+            } else if (lower.includes('big')) {
+                resultText.innerText = `Synonym of "Big" → Large / Huge`;
+            } else if (lower.includes('happy')) {
+                resultText.innerText = `Meaning of "Happy" → Feeling pleased or joyful`;
+            } else {
+                resultText.innerText = `Query Processed: "${input}". (Your question is noted!)`;
+            }
+        }
+    }
+</script>
+
+</body>
+</html>
