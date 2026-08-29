@@ -313,4 +313,183 @@
 
 </body>
 </html>
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QuizSprint - Math & English Practice</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { background-color: #f0f4f8; color: #333; line-height: 1.6; padding: 20px; }
+        .container { max-width: 600px; margin: 0 auto; background: #ffffff; padding: 25px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        header { text-align: center; margin-bottom: 20px; }
+        h1 { color: #2c3e50; font-size: 1.8rem; margin-bottom: 8px; }
+        p.subtitle { color: #666; font-size: 0.95rem; }
+        
+        .tab-buttons { display: flex; gap: 10px; margin-bottom: 20px; }
+        .tab-btn { flex: 1; padding: 12px; border: none; background: #e9ecef; font-size: 1rem; font-weight: bold; cursor: pointer; border-radius: 8px; }
+        .tab-btn.active { background: #007bff; color: white; }
+        
+        .quiz-box { background: #f8f9fa; padding: 20px; border-radius: 8px; border: 1px solid #e2e8f0; }
+        .question-text { font-size: 1.2rem; font-weight: bold; margin-bottom: 15px; color: #1a202c; text-align: center; }
+        
+        .options-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 15px; }
+        .option-btn { padding: 12px; font-size: 1rem; border: 1px solid #cbd5e0; background: white; border-radius: 6px; cursor: pointer; font-weight: 500; transition: 0.2s; }
+        .option-btn:hover { background: #edf2f7; }
+        .option-btn.correct { background: #28a745 !important; color: white; border-color: #28a745; }
+        .option-btn.wrong { background: #dc3545 !important; color: white; border-color: #dc3545; }
+
+        .next-btn { width: 100%; padding: 12px; background: #007bff; color: white; border: none; font-size: 1rem; font-weight: bold; border-radius: 6px; cursor: pointer; }
+        
+        .example-section { margin-top: 25px; padding-top: 15px; border-top: 2px dashed #cbd5e0; }
+        .example-section h3 { font-size: 1.1rem; color: #2d3748; margin-bottom: 10px; }
+        .example-item { background: #edf2f7; padding: 8px 12px; border-radius: 6px; margin-bottom: 8px; font-size: 0.95rem; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <h1>🤖 QuizSprint Quiz Tool</h1>
+        <p class="subtitle">Practice Math & English Questions with Instant Answer Check!</p>
+    </header>
+
+    <div class="tab-buttons">
+        <button class="tab-btn active" id="math-tab" onclick="switchSubject('math')">📚 Math Quiz</button>
+        <button class="tab-btn" id="english-tab" onclick="switchSubject('english')">📖 English Quiz</button>
+    </div>
+
+    <div class="quiz-box">
+        <div class="question-text" id="question">Loading Question...</div>
+        <div class="options-grid" id="options-container"></div>
+        <button class="next-btn" onclick="generateQuestion()">Next Question ➡️</button>
+    </div>
+
+    <!-- Examples Section -->
+    <div class="example-section">
+        <h3>💡 Quick Examples:</h3>
+        <div class="example-item"><b>1. Addition:</b> 45 + 55 = 100</div>
+        <div class="example-item"><b>2. Subtraction:</b> 120 - 40 = 80</div>
+        <div class="example-item"><b>3. Multiplication:</b> 15 × 6 = 90</div>
+        <div class="example-item"><b>4. BODMAS:</b> (10 + 5) × 2 = 30</div>
+    </div>
+</div>
+
+<script>
+    let currentSubject = 'math';
+    let correctAnswer = null;
+
+    function switchSubject(subject) {
+        currentSubject = subject;
+        document.getElementById('math-tab').classList.toggle('active', subject === 'math');
+        document.getElementById('english-tab').classList.toggle('active', subject === 'english');
+        generateQuestion();
+    }
+
+    function getRandomInt(min, max) {
+        return Math.floor(Math.random() * (max - min + 1)) + min;
+    }
+
+    function generateQuestion() {
+        const qElement = document.getElementById('question');
+        const optContainer = document.getElementById('options-container');
+        optContainer.innerHTML = '';
+
+        if (currentSubject === 'math') {
+            const type = getRandomInt(0, 4);
+            let num1, num2, num3, qText;
+
+            if (type === 0) { // Addition
+                num1 = getRandomInt(1, 100); num2 = getRandomInt(1, 100);
+                qText = `Solve: ${num1} + ${num2} = ?`;
+                correctAnswer = num1 + num2;
+            } else if (type === 1) { // Subtraction
+                num1 = getRandomInt(50, 150); num2 = getRandomInt(1, 50);
+                qText = `Solve: ${num1} - ${num2} = ?`;
+                correctAnswer = num1 - num2;
+            } else if (type === 2) { // Multiplication
+                num1 = getRandomInt(2, 20); num2 = getRandomInt(2, 15);
+                qText = `Solve: ${num1} × ${num2} = ?`;
+                correctAnswer = num1 * num2;
+            } else if (type === 3) { // Division
+                num2 = getRandomInt(2, 12); correctAnswer = getRandomInt(2, 15);
+                num1 = num2 * correctAnswer;
+                qText = `Solve: ${num1} ÷ ${num2} = ?`;
+            } else { // BODMAS
+                num1 = getRandomInt(2, 10); num2 = getRandomInt(2, 10); num3 = getRandomInt(2, 5);
+                qText = `Solve: (${num1} + ${num2}) × ${num3} = ?`;
+                correctAnswer = (num1 + num2) * num3;
+            }
+
+            qElement.innerText = qText;
+            createOptions(correctAnswer);
+
+        } else {
+            const englishData = [
+                { q: 'Antonym of "Good"?', ans: 'Bad', opts: ['Bad', 'Best', 'Great', 'Nice'] },
+                { q: 'Synonym of "Big"?', ans: 'Large', opts: ['Large', 'Small', 'Tiny', 'Short'] },
+                { q: 'Meaning of "Happy"?', ans: 'Joyful', opts: ['Joyful', 'Sad', 'Angry', 'Upset'] },
+                { q: 'Fill in: She ___ to school daily.', ans: 'goes', opts: ['goes', 'go', 'going', 'gone'] },
+                { q: 'Antonym of "Fast"?', ans: 'Slow', opts: ['Slow', 'Quick', 'Rapid', 'High'] },
+                { q: 'Synonym of "Smart"?', ans: 'Clever', opts: ['Clever', 'Dull', 'Lazy', 'Slow'] }
+            ];
+            const item = englishData[getRandomInt(0, englishData.length - 1)];
+            qElement.innerText = item.q;
+            correctAnswer = item.ans;
+            
+            let opts = [...item.opts];
+            opts.sort(() => Math.random() - 0.5);
+            opts.forEach(opt => {
+                const btn = document.createElement('button');
+                btn.className = 'option-btn';
+                btn.innerText = opt;
+                btn.onclick = () => checkAnswer(btn, opt);
+                optContainer.appendChild(btn);
+            });
+        }
+    }
+
+    function createOptions(correct) {
+        const optContainer = document.getElementById('options-container');
+        let options = [correct];
+
+        while (options.length < 4) {
+            let wrong = correct + getRandomInt(-10, 10);
+            if (wrong !== correct && wrong >= 0 && !options.includes(wrong)) {
+                options.push(wrong);
+            }
+        }
+
+        options.sort(() => Math.random() - 0.5);
+
+        options.forEach(opt => {
+            const btn = document.createElement('button');
+            btn.className = 'option-btn';
+            btn.innerText = opt;
+            btn.onclick = () => checkAnswer(btn, opt);
+            optContainer.appendChild(btn);
+        });
+    }
+
+    function checkAnswer(btn, selected) {
+        const allBtns = document.querySelectorAll('.option-btn');
+        allBtns.forEach(b => b.disabled = true); // दोबारा क्लिक रोकने के लिए
+
+        if (selected == correctAnswer) {
+            btn.classList.add('correct'); // सही पर हरा रंग
+        } else {
+            btn.classList.add('wrong'); // गलत पर लाल रंग
+            allBtns.forEach(b => {
+                if (b.innerText == correctAnswer) b.classList.add('correct'); // सही उत्तर को हरा दिखाएगा
+            });
+        }
+    }
+
+    // पहला सवाल लोड करें
+    generateQuestion();
+</script>
+
+</body>
+</html>
 
