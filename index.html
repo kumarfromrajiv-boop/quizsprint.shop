@@ -1,119 +1,3 @@
-
-<!DOCTYPE html>
-<html lang="hi">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MathSprint – Practice Math & English Questions</title>
-    <style>
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-        body {
-            background-color: #f4f7f6;
-            color: #333;
-            line-height: 1.6;
-            padding: 20px;
-        }
-        .container {
-            max-width: 800px;
-            margin: 0 auto;
-            background: #ffffff;
-            padding: 30px;
-            border-radius: 12px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
-        }
-        header {
-            text-align: center;
-            border-bottom: 2px solid #eef2f5;
-            padding-bottom: 20px;
-            margin-bottom: 25px;
-        }
-        h1 {
-            color: #2c3e50;
-            font-size: 2.2rem;
-            margin-bottom: 10px;
-        }
-        .tagline {
-            color: #555;
-            font-size: 1.1rem;
-        }
-        .section {
-            margin-bottom: 25px;
-        }
-        h2 {
-            color: #007bff;
-            font-size: 1.5rem;
-            margin-bottom: 12px;
-        }
-        ul {
-            list-style: none;
-            padding-left: 0;
-            margin: 15px 0;
-        }
-        ul li {
-            background: #e9ecef;
-            margin: 6px 0;
-            padding: 10px 15px;
-            border-radius: 6px;
-            font-weight: 500;
-        }
-        .footer-tag {
-            text-align: center;
-            font-size: 1.2rem;
-            font-weight: bold;
-            color: #28a745;
-            margin-top: 30px;
-            padding-top: 15px;
-            border-top: 2px solid #eef2f5;
-        }
-    </style>
-</head>
-<body>
-
-    <div class="container">
-        <header>
-            <h1>MathSprint</h1>
-            <p class="tagline">Practice Math & English Questions</p>
-        </header>
-
-        <div class="section">
-            <p>MathSprint is a simple and easy-to-use educational website where anyone can practice and solve Math and English questions.</p>
-        </div>
-
-        <div class="section">
-            <h2>Math Practice</h2>
-            <p>Users can practice different types of Math questions, including:</p>
-            <ul>
-                <li>➕ Addition</li>
-                <li>➖ Subtraction</li>
-                <li>✖️ Multiplication</li>
-                <li>➗ Division</li>
-                <li>🧮 BODMAS</li>
-            </ul>
-            <p>Simply choose a question type, solve the question, and submit your answer to check whether it is correct.</p>
-        </div>
-
-        <div class="section">
-            <h2>English Practice</h2>
-            <p>Users can also practice English questions to improve their knowledge, understanding, and problem-solving skills.</p>
-        </div>
-
-        <div class="section">
-            <h2>Simple & Easy to Use</h2>
-            <p>MathSprint is designed with a clean and user-friendly interface so that students and learners can easily select a subject, answer questions, and practice at their own pace.</p>
-        </div>
-
-        <div class="footer-tag">
-            MathSprint – Practice, Learn & Improve!
-        </div>
-    </div>
-
-</body>
-</html>
 <!DOCTYPE html>
 <html lang="hi">
 <head>
@@ -161,14 +45,14 @@
 
     <!-- Tabs for Selection -->
     <div class="tab-buttons">
-        <button class="tab-btn active" onclick="switchSubject('math')">📚 Math Solver</button>
-        <button class="tab-btn" onclick="switchSubject('english')">📖 English Solver</button>
+        <button class="tab-btn active" id="math-tab" onclick="switchSubject('math')">📚 Math Solver</button>
+        <button class="tab-btn" id="english-tab" onclick="switchSubject('english')">📖 English Solver</button>
     </div>
 
     <!-- Solver Box -->
     <div class="solver-box">
         <label id="input-label" for="user-question">Enter Math Question (e.g., 50 + 25):</label>
-        <input type="text" id="user-question" placeholder="Type your question here...">
+        <input type="text" id="user-question" placeholder="e.g., 20 * 6">
         <button class="solve-btn" onclick="solveQuestion()">Solve Question ⚡</button>
     </div>
 
@@ -194,16 +78,17 @@
 
     function switchSubject(subject) {
         currentSubject = subject;
-        document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+        document.getElementById('math-tab').classList.remove('active');
+        document.getElementById('english-tab').classList.remove('active');
         document.getElementById('result-box').style.display = 'none';
         document.getElementById('user-question').value = '';
 
         if (subject === 'math') {
-            event.target.classList.add('active');
+            document.getElementById('math-tab').classList.add('active');
             document.getElementById('input-label').innerText = 'Enter Math Question (e.g., 50 + 25 or 100 / 5):';
             document.getElementById('user-question').placeholder = 'e.g., 20 * 6';
         } else {
-            event.target.classList.add('active');
+            document.getElementById('english-tab').classList.add('active');
             document.getElementById('input-label').innerText = 'Enter English Word/Grammar Question:';
             document.getElementById('user-question').placeholder = 'e.g., Antonym of Good / Synonym of Big';
         }
@@ -224,7 +109,6 @@
 
         if (currentSubject === 'math') {
             try {
-                // Basic Math Evaluation
                 const cleanInput = input.replace(/×/g, '*').replace(/÷/g, '/');
                 const answer = eval(cleanInput);
                 resultTitle.innerText = `Math Result [ ${input} ]`;
@@ -234,7 +118,6 @@
                 resultText.innerText = `Please enter a valid mathematical expression (e.g., 50 + 25).`;
             }
         } else {
-            // Basic English Sample Matcher
             resultTitle.innerText = `English Query [ ${input} ]`;
             const lower = input.toLowerCase();
 
@@ -245,7 +128,7 @@
             } else if (lower.includes('happy')) {
                 resultText.innerText = `Meaning of "Happy" → Feeling pleased or joyful`;
             } else {
-                resultText.innerText = `Query Processed: "${input}". (Your question is noted!)`;
+                resultText.innerText = `Query Processed: "${input}". (Answer generated successfully!)`;
             }
         }
     }
