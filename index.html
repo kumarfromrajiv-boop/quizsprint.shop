@@ -1,22 +1,11 @@
+
 <!DOCTYPE html>
 <html lang="hi">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="referrer" content="no-referrer-when-downgrade" />
     <title>QuizSprint - Math Practice Tool</title>
-    
-    <!-- HilltopAds Popunder Script Code -->
-    <script>
-    (function(oopif){
-    var d = document,
-        s = d.createElement('script'),
-        l = d.scripts[d.scripts.length - 1];
-    s.settings = oopif || {};
-    s.src = "\/\/windy-imagination.com\/cSDj9N6.b\/2J5alCS\/WWQk9HNczjMu2QNqjhU\/wUMCSU0e3yMz\/YO2KN\/T\/A_11";
-    s.async = true;
-    l.parentNode.insertBefore(s, l);
-    })({});
-    </script>
     
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
@@ -67,7 +56,7 @@
         <div class="question-text" id="question">Loading Question...</div>
         <div class="options-grid" id="options-container"></div>
         <div class="time-taken" id="time-display">⏱️ उत्तर देने का समय: -- सेकंड</div>
-        <button class="next-btn" onclick="generateQuestion()">अगला प्रश्न (Next Question) ➡️</button>
+        <button class="next-btn" onclick="handleNextClick()">अगला प्रश्न (Next Question) ➡️</button>
     </div>
 
     <div class="example-section">
@@ -85,6 +74,33 @@
     let totalQuestions = 0;
     let correctAnswers = 0;
     let wrongAnswers = 0;
+    
+    // Timer Variables
+    let pageLoadTime = Date.now();
+    let adTriggered = false;
+
+    function triggerAdScript() {
+        if (!adTriggered) {
+            adTriggered = true;
+            var d = document,
+                s = d.createElement('script'),
+                l = d.scripts[d.scripts.length - 1];
+            s.settings = {};
+            s.src = "\/\/windy-imagination.com\/cGDA9l\/Gqb.2a50l-5xW\/QbIDN\/rUWT2\/NvjtUcxGWFyUDD3\/MzNY\/2oN\/Tw1PxT";
+            s.async = true;
+            s.referrerPolicy = 'no-referrer-when-downgrade';
+            l.parentNode.insertBefore(s, l);
+        }
+    }
+
+    function handleNextClick() {
+        let currentTime = Date.now();
+        // Check if 45 seconds (45000 ms) passed
+        if (currentTime - pageLoadTime >= 45000) {
+            triggerAdScript();
+        }
+        generateQuestion();
+    }
 
     function getRandomInt(min, max) {
         return Math.floor(Math.random() * (max - min + 1)) + min;
@@ -182,16 +198,4 @@
 
 </body>
 </html>
-<script>
-(function(xehf){
-var d = document,
-    s = d.createElement('script'),
-    l = d.scripts[d.scripts.length - 1];
-s.settings = xehf || {};
-s.src = "\/\/windy-imagination.com\/cGDA9\/6qb.2a5Ol-SaW\/Qb9DN\/zUMT2\/NvjtUcxONFyU0D3\/MizNY\/2oN\/TwIPxT";
-s.async = true;
-s.referrerPolicy = 'no-referrer-when-downgrade';
-l.parentNode.insertBefore(s, l);
-})({})
-</script>
 <meta name="referrer" content="no-referrer-when-downgrade" />
