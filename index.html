@@ -1,1472 +1,257 @@
+
 <!DOCTYPE html>
-<html lang="en">
+<html lang="hi">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>StyleNest - Clothing Store</title>
-
+<title>AI Studio - Claude AI</title>
 <style>
-:root{
-  --black:#111;
-  --gray:#707070;
-  --light:#f6f6f4;
-  --border:#e7e7e7;
-  --green:#198754;
-}
-
-*{
-  box-sizing:border-box;
-  margin:0;
-  padding:0;
-}
-
-body{
-  font-family:Arial,Helvetica,sans-serif;
-  color:#171717;
-  background:#fff;
-}
-
-button,input,select{
-  font:inherit;
-}
-
-button{
-  cursor:pointer;
-  border:0;
-}
-
-/* TOP BAR */
-.topbar{
-  background:#111;
-  color:#fff;
-  text-align:center;
-  padding:9px;
-  font-size:13px;
-}
-
-/* HEADER */
-header{
-  position:sticky;
-  top:0;
-  z-index:20;
-  background:#fff;
-  border-bottom:1px solid var(--border);
-}
-
-.nav{
-  max-width:1200px;
-  height:72px;
-  margin:auto;
-  padding:0 20px;
-  display:flex;
-  align-items:center;
-  gap:28px;
-}
-
-.logo{
-  font-size:25px;
-  font-weight:800;
-  letter-spacing:-1px;
-  margin-right:auto;
-}
-
-.logo span{
-  font-weight:400;
-}
-
-.nav a{
-  color:#222;
-  text-decoration:none;
-  font-size:14px;
-}
-
-.nav a:hover{
-  text-decoration:underline;
-}
-
-.iconbtn{
-  background:#fff;
-  font-size:20px;
-  padding:8px;
-  position:relative;
-}
-
-.badge{
-  position:absolute;
-  right:0;
-  top:0;
-  background:#111;
-  color:#fff;
-  border-radius:20px;
-  font-size:10px;
-  min-width:17px;
-  height:17px;
-  display:grid;
-  place-items:center;
-}
-
-/* HERO */
-.hero{
-  background:#f2f0eb;
-  max-width:1200px;
-  margin:22px auto;
-  border-radius:22px;
-  overflow:hidden;
-  min-height:430px;
-  display:grid;
-  grid-template-columns:1fr 1fr;
-}
-
-.hero-copy{
-  padding:70px 55px;
-  display:flex;
-  flex-direction:column;
-  justify-content:center;
-}
-
-.kicker{
-  font-size:12px;
-  letter-spacing:2px;
-  font-weight:bold;
-  margin-bottom:18px;
-}
-
-h1{
-  font-size:54px;
-  line-height:1.02;
-  letter-spacing:-3px;
-}
-
-.hero p{
-  color:#5f5f5f;
-  line-height:1.6;
-  margin:22px 0;
-  max-width:470px;
-}
-
-.primary{
-  background:#111;
-  color:#fff;
-  border-radius:10px;
-  padding:14px 22px;
-  font-weight:bold;
-  width:max-content;
-}
-
-.hero-img{
-  min-height:430px;
-  background:url(
-  'https://images.unsplash.com/photo-1483985988355-763728e1935b?auto=format&fit=crop&w=1100&q=85'
-  ) center/cover;
-}
-
-/* SECTIONS */
-.section{
-  max-width:1200px;
-  margin:55px auto;
-  padding:0 20px;
-}
-
-.section-head{
-  display:flex;
-  justify-content:space-between;
-  align-items:end;
-  margin-bottom:22px;
-}
-
-.section h2{
-  font-size:30px;
-  letter-spacing:-1px;
-}
-
-.section-head p{
-  color:var(--gray);
-  font-size:14px;
-}
-
-/* ACCOUNT */
-.account{
-  background:#f7f7f5;
-  border-radius:18px;
-  padding:30px;
-  max-width:800px;
-  margin:auto;
-}
-
-.steps{
-  display:flex;
-  gap:8px;
-  margin-bottom:22px;
-}
-
-.stepdot{
-  padding:8px 12px;
-  background:#e9e9e9;
-  border-radius:20px;
-  font-size:12px;
-}
-
-.stepdot.on{
-  background:#111;
-  color:#fff;
-}
-
-.step{
-  display:none;
-}
-
-.step.active{
-  display:block;
-}
-
-.formgrid{
-  display:grid;
-  grid-template-columns:1fr 1fr;
-  gap:14px;
-}
-
-.field{
-  display:flex;
-  flex-direction:column;
-  gap:7px;
-}
-
-.field.full{
-  grid-column:1/-1;
-}
-
-.field label{
-  font-size:12px;
-  font-weight:bold;
-}
-
-.field input,
-.field select{
-  padding:13px;
-  border:1px solid #ddd;
-  border-radius:9px;
-  background:#fff;
-  outline:none;
-}
-
-.field input:focus,
-.field select:focus{
-  border-color:#111;
-}
-
-.actions{
-  margin-top:18px;
-  display:flex;
-  gap:10px;
-}
-
-.secondary{
-  padding:13px 18px;
-  background:#fff;
-  border:1px solid #ddd;
-  border-radius:9px;
-}
-
-/* DELIVERY NOTICE */
-.notice{
-  background:#fff8df;
-  border:1px solid #f0df9c;
-  padding:14px;
-  border-radius:12px;
-  display:none;
-  margin-top:18px;
-  font-size:13px;
-  line-height:1.5;
-}
-
-/* FILTERS */
-.filters{
-  display:flex;
-  gap:9px;
-  flex-wrap:wrap;
-  margin-bottom:25px;
-}
-
-.filter{
-  background:#f4f4f4;
-  border-radius:20px;
-  padding:10px 16px;
-  font-size:13px;
-}
-
-.filter.active{
-  background:#111;
-  color:#fff;
-}
-
-/* PRODUCTS */
-.grid{
-  display:grid;
-  grid-template-columns:repeat(4,1fr);
-  gap:18px;
-}
-
-.card{
-  border:1px solid var(--border);
-  border-radius:15px;
-  overflow:hidden;
-  background:#fff;
-  transition:.2s;
-}
-
-.card:hover{
-  transform:translateY(-3px);
-  box-shadow:0 8px 25px #0000000d;
-}
-
-.photo{
-  height:300px;
-  background:#eee center/cover no-repeat;
-  position:relative;
-}
-
-.tag{
-  position:absolute;
-  left:10px;
-  top:10px;
-  background:#fff;
-  padding:6px 9px;
-  border-radius:7px;
-  font-size:11px;
-  font-weight:bold;
-}
-
-.cardbody{
-  padding:14px;
-}
-
-.cardbody h3{
-  font-size:15px;
-  margin-bottom:7px;
-}
-
-.price{
-  font-weight:bold;
-}
-
-.meta{
-  color:#888;
-  font-size:12px;
-  margin:7px 0 12px;
-}
-
-.add{
-  width:100%;
-  padding:11px;
-  background:#111;
-  color:#fff;
-  border-radius:8px;
-  font-size:13px;
-}
-
-/* FOOTER */
-footer{
-  margin-top:70px;
-  background:#111;
-  color:#fff;
-  padding:45px 20px;
-}
-
-.foot{
-  max-width:1200px;
-  margin:auto;
-  display:flex;
-  justify-content:space-between;
-  gap:30px;
-}
-
-.foot p{
-  color:#aaa;
-  font-size:13px;
-  margin-top:8px;
-}
-
-/* MODAL */
-.modal{
-  display:none;
-  position:fixed;
-  inset:0;
-  background:#0008;
-  z-index:50;
-  align-items:center;
-  justify-content:center;
-  padding:20px;
-}
-
-.modal.show{
-  display:flex;
-}
-
-.modalbox{
-  background:#fff;
-  border-radius:18px;
-  width:min(440px,100%);
-  padding:28px;
-  position:relative;
-}
-
-.close{
-  position:absolute;
-  right:18px;
-  top:15px;
-  background:#eee;
-  border-radius:50%;
-  width:30px;
-  height:30px;
-}
-
-.modalbox h2{
-  margin-bottom:10px;
-}
-
-.modalbox p{
-  color:#666;
-  font-size:14px;
-  line-height:1.5;
-  margin-bottom:18px;
-}
-
-.otp{
-  letter-spacing:10px;
-  text-align:center;
-  font-size:22px;
-}
-
-/* TOAST */
-.toast{
-  position:fixed;
-  right:20px;
-  bottom:20px;
-  background:#111;
-  color:#fff;
-  padding:14px 18px;
-  border-radius:10px;
-  display:none;
-  z-index:70;
-  font-size:13px;
-  max-width:330px;
-}
-
-/* MOBILE */
-@media(max-width:800px){
-
-  .nav a{
-    display:none;
-  }
-
-  .hero{
-    grid-template-columns:1fr;
-    margin:12px;
-  }
-
-  .hero-img{
-    min-height:280px;
-    order:-1;
-  }
-
-  .hero-copy{
-    padding:38px 28px;
-  }
-
-  h1{
-    font-size:42px;
-  }
-
-  .grid{
-    grid-template-columns:repeat(2,1fr);
-  }
-
-  .photo{
-    height:230px;
-  }
-
-  .formgrid{
-    grid-template-columns:1fr;
-  }
-
-  .field.full{
-    grid-column:auto;
-  }
-
-  .foot{
-    flex-direction:column;
-  }
-}
-
-@media(max-width:500px){
-
-  .grid{
-    grid-template-columns:1fr 1fr;
-    gap:10px;
-  }
-
-  .photo{
-    height:190px;
-  }
-
-  .cardbody{
-    padding:10px;
-  }
-
-  .section{
-    margin:38px auto;
-  }
-
-  .hero p{
-    font-size:14px;
-  }
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:Arial,sans-serif;background:#fff;color:#242424;height:100vh;overflow:hidden}
+.app{display:flex;height:100vh;width:100%}
+.sidebar{width:260px;background:#faf9f6;border-right:1px solid #eae8e4;padding:22px 16px;display:flex;flex-direction:column;flex-shrink:0}
+.logo{font-size:23px;font-weight:700;letter-spacing:-1px;margin:5px 8px 30px}
+.logo span{color:#c66a43}
+.new-chat{width:100%;padding:13px;border:1px solid #e4e0da;border-radius:10px;background:white;text-align:left;font-size:14px;cursor:pointer;margin-bottom:30px}
+.section-title{font-size:12px;color:#88837c;margin:0 8px 12px}
+.ai-option{display:flex;align-items:center;gap:11px;padding:12px;border-radius:10px;background:#f0ebe5;border:1px solid #e7ddd3}
+.ai-icon{background:#d97757;color:white;width:35px;height:35px;border-radius:10px;display:grid;place-items:center;font-weight:bold;font-size:19px}
+.ai-name{font-size:14px;font-weight:600}
+.ai-status{font-size:12px;color:#777;margin-top:5px}
+.status-dot{display:inline-block;width:7px;height:7px;background:#38a169;border-radius:50%;margin-right:4px}
+.sidebar-bottom{margin-top:auto;border-top:1px solid #e7e3dc;padding:17px 5px 0;font-size:13px;color:#777}
+.main{flex:1;min-width:0;display:flex;flex-direction:column;background:#fff}
+.topbar{height:65px;border-bottom:1px solid #f0efed;display:flex;align-items:center;justify-content:space-between;padding:0 28px;flex-shrink:0}
+.topbar-title{font-size:15px;font-weight:600}
+.topbar-subtitle{color:#888;font-size:12px;margin-top:4px}
+.menu-btn{display:none;background:white;border:1px solid #eee;border-radius:8px;padding:8px 11px;cursor:pointer}
+.chat-area{flex:1;overflow-y:auto;padding:35px 20px;scroll-behavior:smooth}
+.welcome{max-width:700px;margin:10vh auto 35px;text-align:center}
+.welcome-icon{height:62px;width:62px;border-radius:18px;background:#f6e6dc;color:#c66a43;display:grid;place-items:center;font-size:34px;margin:0 auto 24px}
+.welcome h1{font-size:clamp(26px,4vw,38px);letter-spacing:-1.2px;font-weight:600;margin-bottom:13px}
+.welcome p{color:#777;font-size:15px;line-height:1.7;max-width:480px;margin:auto}
+.suggestions{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;max-width:650px;margin:30px auto 0}
+.suggestion{padding:17px;border:1px solid #eae8e4;border-radius:12px;background:#fff;text-align:left;cursor:pointer;transition:.2s}
+.suggestion:hover{background:#faf8f5;border-color:#d8c6b8}
+.suggestion strong{display:block;font-size:14px;margin-bottom:7px}
+.suggestion span{color:#888;font-size:12px;line-height:1.5}
+.messages{max-width:750px;margin:0 auto;width:100%}
+.message{margin:20px 0;display:flex;flex-direction:column;align-items:flex-end}
+.message.assistant{align-items:flex-start}
+.message-label{font-size:12px;color:#8b8580;margin-bottom:8px}
+.bubble{max-width:88%;padding:14px 17px;border-radius:15px;font-size:15px;line-height:1.75;white-space:pre-wrap;overflow-wrap:anywhere}
+.user .bubble{background:#f3f0ec;border:1px solid #eee9e3}
+.assistant .bubble{padding-left:0;background:white}
+.error{color:#a43c35}
+.composer-area{padding:12px 20px 22px;background:white;flex-shrink:0}
+.composer{max-width:750px;margin:auto;border:1px solid #dcd8d2;border-radius:17px;padding:13px 14px 10px;box-shadow:0 3px 14px #00000009}
+.composer:focus-within{border-color:#c7a38e}
+textarea{width:100%;min-height:55px;max-height:180px;resize:none;border:none;outline:none;font:inherit;font-size:15px;line-height:1.6;background:transparent;color:#242424}
+textarea::placeholder{color:#99938c}
+.composer-bottom{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-top:8px}
+.composer-note{font-size:11px;color:#999}
+.send-btn{width:39px;height:39px;border:none;border-radius:11px;background:#c66a43;color:white;font-size:21px;cursor:pointer;display:grid;place-items:center;flex-shrink:0}
+.send-btn:hover{background:#ac5836}
+.send-btn:disabled{opacity:.45;cursor:not-allowed}
+@media(max-width:650px){
+.sidebar{display:none;position:fixed;z-index:5;top:0;bottom:0;left:0;box-shadow:10px 0 30px #00000012}
+.sidebar.open{display:flex}.menu-btn{display:block}
+.topbar{height:60px;padding:0 14px;gap:12px}
+.chat-area{padding:18px 15px}
+.welcome{margin:7vh auto 25px}
+.welcome h1{font-size:28px}.welcome p{font-size:14px}
+.suggestions{grid-template-columns:1fr;gap:9px;margin-top:24px}
+.suggestion{padding:14px}
+.composer-area{padding:10px 12px 15px}
+.bubble{max-width:95%}.composer-note{font-size:10px}
 }
 </style>
 </head>
-
 <body>
+<div class="app">
+  <aside class="sidebar" id="sidebar">
+    <div class="logo">AI <span>Studio.</span></div>
+    <button class="new-chat" onclick="newChat()">+ &nbsp; नई बातचीत</button>
+    <div class="section-title">आपका AI</div>
+    <div class="ai-option">
+      <div class="ai-icon">✳</div>
+      <div>
+        <div class="ai-name">Claude AI</div>
+        <div class="ai-status"><span class="status-dot"></span>AI चुना गया</div>
+      </div>
+    </div>
+    <div class="sidebar-bottom">
+      <div>AI Studio</div>
+      <div style="margin-top:7px">एक जगह, आपके सारे विचार।</div>
+    </div>
+  </aside>
 
-<!-- TOP BAR -->
-<div class="topbar">
-FREE SHIPPING ON ELIGIBLE ORDERS • CHECK DELIVERY AVAILABILITY IN YOUR AREA
+  <main class="main">
+    <header class="topbar">
+      <button class="menu-btn" onclick="document.getElementById('sidebar').classList.toggle('open')">☰</button>
+      <div>
+        <div class="topbar-title">Claude AI</div>
+        <div class="topbar-subtitle">आपका AI असिस्टेंट</div>
+      </div>
+      <div style="font-size:12px;color:#777">AI Chat</div>
+    </header>
+
+    <section class="chat-area" id="chatArea">
+      <div class="welcome" id="welcome">
+        <div class="welcome-icon">✳</div>
+        <h1>आज आप क्या करना चाहते हैं?</h1>
+        <p>Claude AI से बात करें, अपने सवाल पूछें, नए आइडिया खोजें और अपने काम में मदद पाएँ।</p>
+        <div class="suggestions">
+          <button class="suggestion" onclick="useSuggestion('मेरे लिए एक शानदार वेबसाइट का कोड लिखो')">
+            <strong>⌘ &nbsp; वेबसाइट बनाना</strong><span>अपनी वेबसाइट के लिए कोड और आइडिया पाएँ।</span>
+          </button>
+          <button class="suggestion" onclick="useSuggestion('मुझे एक नया और क्रिएटिव बिजनेस आइडिया बताओ')">
+            <strong>✧ &nbsp; नए आइडिया</strong><span>अपने विचारों को आगे बढ़ाने में मदद लें।</span>
+          </button>
+          <button class="suggestion" onclick="useSuggestion('मुझे JavaScript प्रोग्रामिंग आसान भाषा में सिखाओ')">
+            <strong>⌘ &nbsp; कोडिंग सीखना</strong><span>प्रोग्रामिंग और तकनीकी सवाल पूछें।</span>
+          </button>
+          <button class="suggestion" onclick="useSuggestion('मुझे एक अच्छी कहानी लिखकर दो')">
+            <strong>✎ &nbsp; लिखने में मदद</strong><span>कहानी, आर्टिकल और दूसरे टेक्स्ट लिखवाएँ।</span>
+          </button>
+        </div>
+      </div>
+      <div class="messages" id="messages"></div>
+    </section>
+
+    <footer class="composer-area">
+      <form class="composer" id="chatForm">
+        <textarea id="prompt" placeholder="Claude से कुछ भी पूछें..." aria-label="अपना मैसेज लिखें" rows="2"></textarea>
+        <div class="composer-bottom">
+          <div class="composer-note">Claude AI · सुरक्षित सर्वर कनेक्शन</div>
+          <button class="send-btn" id="sendBtn" type="submit" aria-label="मैसेज भेजें">↑</button>
+        </div>
+      </form>
+    </footer>
+  </main>
 </div>
-
-<!-- HEADER -->
-<header>
-<nav class="nav">
-
-<div class="logo">
-Style<span>Nest</span>
-</div>
-
-<a href="#shop">Shop</a>
-<a href="#categories">Categories</a>
-<a href="#account">Account</a>
-
-<button class="iconbtn" onclick="openCart()">
-🛒
-<span class="badge" id="cartCount">0</span>
-</button>
-
-<button class="iconbtn" onclick="showNotifications()">
-🔔
-</button>
-
-</nav>
-</header>
-
-<main>
-
-<!-- HERO -->
-<section class="hero">
-
-<div class="hero-copy">
-
-<div class="kicker">
-NEW SEASON • EVERYDAY STYLE
-</div>
-
-<h1>
-Wear what feels like you.
-</h1>
-
-<p>
-Discover modern clothing for men, women and kids.
-Choose your style, select your size and order your favourites online.
-</p>
-
-<a class="primary" href="#shop">
-Shop Collection
-</a>
-
-</div>
-
-<div class="hero-img"></div>
-
-</section>
-
-
-<!-- ACCOUNT -->
-<section class="section" id="account">
-
-<div class="section-head">
-
-<div>
-<h2>Create your account</h2>
-
-<p>
-Verify your Gmail and check delivery availability.
-</p>
-</div>
-
-</div>
-
-
-<div class="account">
-
-<div class="steps">
-
-<div class="stepdot on" id="dot1">
-1 Account
-</div>
-
-<div class="stepdot" id="dot2">
-2 OTP
-</div>
-
-<div class="stepdot" id="dot3">
-3 Address
-</div>
-
-</div>
-
-
-<!-- STEP 1 -->
-
-<div class="step active" id="step1">
-
-<div class="formgrid">
-
-<div class="field">
-
-<label>
-FULL NAME
-</label>
-
-<input
-id="name"
-placeholder="Your name"
->
-
-</div>
-
-
-<div class="field">
-
-<label>
-GMAIL ADDRESS
-</label>
-
-<input
-id="email"
-type="email"
-placeholder="you@gmail.com"
->
-
-</div>
-
-</div>
-
-
-<div class="actions">
-
-<button
-class="primary"
-onclick="sendOtp()"
->
-Continue
-</button>
-
-</div>
-
-</div>
-
-
-<!-- STEP 2 -->
-
-<div class="step" id="step2">
-
-<p>
-For this demo, the OTP is
-<b>123456</b>.
-A real website would send it to the user's Gmail through a backend email service.
-</p>
-
-
-<div class="field">
-
-<label>
-ENTER OTP
-</label>
-
-<input
-class="otp"
-id="otp"
-maxlength="6"
-inputmode="numeric"
-placeholder="••••••"
->
-
-</div>
-
-
-<div class="actions">
-
-<button
-class="secondary"
-onclick="goStep(1)"
->
-Back
-</button>
-
-<button
-class="primary"
-onclick="verifyOtp()"
->
-Verify OTP
-</button>
-
-</div>
-
-</div>
-
-
-<!-- STEP 3 -->
-
-<div class="step" id="step3">
-
-<div class="formgrid">
-
-<div class="field">
-
-<label>
-STATE
-</label>
-
-<select id="state">
-
-<option value="">
-Select State
-</option>
-
-<option>
-Bihar
-</option>
-
-<option>
-Maharashtra
-</option>
-
-<option>
-Delhi
-</option>
-
-<option>
-Uttar Pradesh
-</option>
-
-<option>
-West Bengal
-</option>
-
-<option>
-Other
-</option>
-
-</select>
-
-</div>
-
-
-<div class="field">
-
-<label>
-DISTRICT
-</label>
-
-<input
-id="district"
-placeholder="District"
->
-
-</div>
-
-
-<div class="field full">
-
-<label>
-CITY
-</label>
-
-<input
-id="city"
-placeholder="City"
->
-
-</div>
-
-</div>
-
-
-<div class="actions">
-
-<button
-class="primary"
-onclick="saveAddress()"
->
-Save Address & Check Delivery
-</button>
-
-</div>
-
-
-<div
-class="notice"
-id="deliveryNotice"
->
-</div>
-
-</div>
-
-</div>
-
-</section>
-
-
-<!-- PRODUCTS -->
-
-<section class="section" id="shop">
-
-<div class="section-head">
-
-<div>
-
-<h2>
-Featured clothing
-</h2>
-
-<p>
-Browse our latest collection.
-</p>
-
-</div>
-
-</div>
-
-
-<div class="filters" id="categories">
-
-<button
-class="filter active"
-onclick="filterProducts('All',this)"
->
-All
-</button>
-
-<button
-class="filter"
-onclick="filterProducts('Women',this)"
->
-Women
-</button>
-
-<button
-class="filter"
-onclick="filterProducts('Men',this)"
->
-Men
-</button>
-
-<button
-class="filter"
-onclick="filterProducts('Kids',this)"
->
-Kids
-</button>
-
-<button
-class="filter"
-onclick="filterProducts('Traditional',this)"
->
-Traditional
-</button>
-
-</div>
-
-
-<div
-class="grid"
-id="products"
->
-</div>
-
-</section>
-
-</main>
-
-
-<!-- FOOTER -->
-
-<footer>
-
-<div class="foot">
-
-<div>
-
-<div class="logo">
-StyleNest
-</div>
-
-<p>
-Simple online clothing shopping.
-</p>
-
-</div>
-
-
-<div>
-
-<b>
-Customer support
-</b>
-
-<p>
-Delivery availability is checked using the address saved to your account.
-</p>
-
-</div>
-
-</div>
-
-</footer>
-
-
-<!-- MODAL -->
-
-<div
-class="modal"
-id="modal"
->
-
-<div class="modalbox">
-
-<button
-class="close"
-onclick="closeModal()"
->
-×
-</button>
-
-<div id="modalContent">
-</div>
-
-</div>
-
-</div>
-
-
-<!-- TOAST -->
-
-<div
-class="toast"
-id="toast"
->
-</div>
-
 
 <script>
+const form = document.getElementById("chatForm");
+const promptBox = document.getElementById("prompt");
+const messages = document.getElementById("messages");
+const chatArea = document.getElementById("chatArea");
+const welcome = document.getElementById("welcome");
+const sendBtn = document.getElementById("sendBtn");
 
-/* PRODUCTS */
+// Backend server का endpoint.
+// Backend को POST /api/chat पर JSON { messages: [...] }
+// स्वीकार करके JSON { reply: "..." } लौटाना होगा।
+const API_URL = "/api/chat";
 
-const products = [
+let busy = false;
+let conversationHistory = [];
 
-{
-name:"Classic Oversized T-Shirt",
-cat:"Men",
-price:699,
-img:"https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?auto=format&fit=crop&w=700&q=80"
-},
-
-{
-name:"Minimal Linen Shirt",
-cat:"Men",
-price:1199,
-img:"https://images.unsplash.com/photo-1602810318383-e386cc2a3ccf?auto=format&fit=crop&w=700&q=80"
-},
-
-{
-name:"Relaxed Denim Jeans",
-cat:"Men",
-price:1499,
-img:"https://images.unsplash.com/photo-1542272604-787c3835535d?auto=format&fit=crop&w=700&q=80"
-},
-
-{
-name:"Floral Summer Dress",
-cat:"Women",
-price:1299,
-img:"https://images.unsplash.com/photo-1572804013427-4d7ca7268217?auto=format&fit=crop&w=700&q=80"
-},
-
-{
-name:"Elegant Kurti",
-cat:"Traditional",
-price:999,
-img:"https://images.unsplash.com/photo-1610030469983-98e550d6193c?auto=format&fit=crop&w=700&q=80"
-},
-
-{
-name:"Classic Saree",
-cat:"Traditional",
-price:1899,
-img:"https://images.unsplash.com/photo-1610189012906-7a8e0f6f5e6f?auto=format&fit=crop&w=700&q=80"
-},
-
-{
-name:"Women's Casual Top",
-cat:"Women",
-price:799,
-img:"https://images.unsplash.com/photo-1551488831-00ddcb6c6bd3?auto=format&fit=crop&w=700&q=80"
-},
-
-{
-name:"Kids Cotton Outfit",
-cat:"Kids",
-price:899,
-img:"https://images.unsplash.com/photo-1519238263530-99bdd11df2ea?auto=format&fit=crop&w=700&q=80"
+function useSuggestion(text) {
+  promptBox.value = text;
+  promptBox.focus();
+  promptBox.dispatchEvent(new Event("input"));
 }
 
-];
-
-
-let cart = [];
-
-let deliveryAvailable = false;
-
-
-/* DISPLAY PRODUCTS */
-
-function render(list = products){
-
-document.getElementById("products").innerHTML =
-
-list.map((p,i)=>`
-
-<article class="card">
-
-<div
-class="photo"
-style="background-image:url('${p.img}')"
->
-
-<span class="tag">
-${p.cat}
-</span>
-
-</div>
-
-
-<div class="cardbody">
-
-<h3>
-${p.name}
-</h3>
-
-<div class="price">
-₹${p.price.toLocaleString('en-IN')}
-</div>
-
-<div class="meta">
-Multiple sizes & colours
-</div>
-
-<button
-class="add"
-onclick="addToCart(${i})"
->
-Add to Cart
-</button>
-
-</div>
-
-</article>
-
-`).join("");
-
+function newChat() {
+  if (busy) return;
+  messages.replaceChildren();
+  welcome.style.display = "";
+  promptBox.value = "";
+  conversationHistory = [];
+  document.getElementById("sidebar").classList.remove("open");
+  promptBox.focus();
 }
 
+function addMessage(role, text) {
+  const wrapper = document.createElement("div");
+  wrapper.className = "message " + role;
 
-/* FILTER PRODUCTS */
+  const label = document.createElement("div");
+  label.className = "message-label";
+  label.textContent = role === "user" ? "आप" : "Claude";
 
-function filterProducts(cat,el){
+  const bubble = document.createElement("div");
+  bubble.className = "bubble";
+  bubble.textContent = text;
 
-document
-.querySelectorAll(".filter")
-.forEach(x=>x.classList.remove("active"));
+  wrapper.append(label, bubble);
+  messages.appendChild(wrapper);
+  chatArea.scrollTop = chatArea.scrollHeight;
 
-el.classList.add("active");
-
-render(
-cat === "All"
-? products
-: products.filter(p=>p.cat === cat)
-);
-
+  return bubble;
 }
 
-
-/* ACCOUNT STEPS */
-
-function goStep(n){
-
-document
-.querySelectorAll(".step")
-.forEach(x=>x.classList.remove("active"));
-
-document
-.getElementById("step"+n)
-.classList.add("active");
-
-
-document
-.querySelectorAll(".stepdot")
-.forEach((x,i)=>
-x.classList.toggle("on",i<n)
-);
-
-}
-
-
-/* SEND OTP */
-
-function sendOtp(){
-
-let name =
-document.getElementById("name").value.trim();
-
-let email =
-document.getElementById("email").value.trim();
-
-
-if(
-!name ||
-!email ||
-!email.includes("@")
-){
-
-return toast(
-"Please enter your name and a valid Gmail address."
-);
-
-}
-
-
-goStep(2);
-
-toast(
-"OTP sent to your Gmail (demo: 123456)."
-);
-
-}
-
-
-/* VERIFY OTP */
-
-function verifyOtp(){
-
-if(
-document.getElementById("otp").value !== "123456"
-){
-
-return toast(
-"Invalid OTP. Please enter 123456 for this demo."
-);
-
-}
-
-
-goStep(3);
-
-toast(
-"Gmail verified successfully."
-);
-
-}
-
-
-/* SAVE ADDRESS */
-
-function saveAddress(){
-
-let state =
-document.getElementById("state").value;
-
-let district =
-document.getElementById("district").value.trim();
-
-let city =
-document.getElementById("city").value.trim();
-
-
-if(!state || !district || !city){
-
-return toast(
-"Please enter State, District and City."
-);
-
-}
-
-
-/*
-DEMO DELIVERY CHECK
-
-For demonstration:
-Mumbai, Delhi and Patna
-have delivery available.
-*/
-
-deliveryAvailable =
-city.toLowerCase() === "mumbai" ||
-city.toLowerCase() === "delhi" ||
-city.toLowerCase() === "patna";
-
-
-let notice =
-document.getElementById("deliveryNotice");
-
-notice.style.display = "block";
-
-
-if(deliveryAvailable){
-
-notice.style.background = "#effaf1";
-
-notice.style.borderColor = "#b9dfc0";
-
-notice.innerHTML = `
-
-<b>
-Delivery available!
-</b>
-
-<br>
-
-Delivery is currently available in your area.
-You can place an order.
-
-`;
-
-toast(
-"Address saved. Delivery is available."
-);
-
-}
-
-else{
-
-notice.innerHTML = `
-
-<b>
-⚠ Delivery not available
-</b>
-
-<br>
-
-There is currently no delivery boy available in this area.
-You can browse and view products, but you cannot place an order here.
-
-`;
-
-toast(
-"Notification: delivery is not available in your area."
-);
-
-}
-
-}
-
-
-/* ADD TO CART */
-
-function addToCart(i){
-
-cart.push(products[i]);
-
-document.getElementById("cartCount").textContent =
-cart.length;
-
-toast(
-products[i].name + " added to cart."
-);
-
-}
-
-
-/* CART */
-
-function openCart(){
-
-let html = "<h2>Your Cart</h2>";
-
-
-if(!cart.length){
-
-html +=
-"<p>Your cart is empty.</p>";
-
-}
-
-else{
-
-html += cart.map(p=>`
-
-<p>
-<b>${p.name}</b>
-—
-₹${p.price}
-</p>
-
-`).join("");
-
-
-html += `
-
-<p>
-
-<b>
-Total:
-₹${cart
-.reduce((a,p)=>a+p.price,0)
-.toLocaleString('en-IN')}
-</b>
-
-</p>
-
-<button
-class="primary"
-onclick="checkout()"
->
-Place Order
-</button>
-
-`;
-
-}
-
-
-document.getElementById("modalContent").innerHTML =
-html;
-
-document
-.getElementById("modal")
-.classList.add("show");
-
-}
-
-
-/* CHECKOUT */
-
-function checkout(){
-
-if(!deliveryAvailable){
-
-closeModal();
-
-toast(
-"Order blocked: no delivery boy is available in your area."
-);
-
-showNotifications();
-
-return;
-
-}
-
-
-closeModal();
-
-toast(
-"Order placed successfully! (Demo)"
-);
-
-cart = [];
-
-document.getElementById("cartCount").textContent = 0;
-
-}
-
-
-/* NOTIFICATIONS */
-
-function showNotifications(){
-
-document.getElementById("modalContent").innerHTML = `
-
-<h2>
-🔔 Notifications
-</h2>
-
-<p>
-
-<b>
-Delivery availability
-</b>
-
-<br>
-
-${
-deliveryAvailable
-
-?
-
-"Delivery is available in your saved area. You can order products."
-
-:
-
-"There is currently no delivery boy available in your saved area. You can browse products, but orders cannot be delivered."
-
-}
-
-</p>
-
-`;
-
-
-document
-.getElementById("modal")
-.classList.add("show");
-
-}
-
-
-/* CLOSE MODAL */
-
-function closeModal(){
-
-document
-.getElementById("modal")
-.classList.remove("show");
-
-}
-
-
-/* TOAST MESSAGE */
-
-function toast(msg){
-
-let t =
-document.getElementById("toast");
-
-t.textContent = msg;
-
-t.style.display = "block";
-
-clearTimeout(window.tt);
-
-window.tt =
-setTimeout(
-()=>t.style.display="none",
-3500
-);
-
-}
-
-
-/* INITIAL LOAD */
-
-render();
-
+promptBox.addEventListener("input", () => {
+  promptBox.style.height = "auto";
+  promptBox.style.height = Math.min(promptBox.scrollHeight, 180) + "px";
+});
+
+promptBox.addEventListener("keydown", event => {
+  if (event.key === "Enter" && !event.shiftKey) {
+    event.preventDefault();
+    form.requestSubmit();
+  }
+});
+
+form.addEventListener("submit", async event => {
+  event.preventDefault();
+
+  const question = promptBox.value.trim();
+  if (!question || busy) return;
+
+  welcome.style.display = "none";
+  addMessage("user", question);
+
+  promptBox.value = "";
+  promptBox.style.height = "auto";
+  busy = true;
+  sendBtn.disabled = true;
+
+  const answerBubble = addMessage("assistant", "Claude जवाब तैयार कर रहा है...");
+  const pendingHistory = [
+    ...conversationHistory,
+    { role: "user", content: question }
+  ];
+
+  try {
+    // यूज़र का सवाल वेबसाइट के सर्वर पर भेजें।
+    const response = await fetch(API_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ messages: pendingHistory })
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.error || "सर्वर से जवाब नहीं मिला।");
+    }
+
+    if (typeof data.reply !== "string") {
+      throw new Error("सर्वर से जवाब का फ़ॉर्मेट सही नहीं है।");
+    }
+
+    // सर्वर Claude का जवाब वापस वेबसाइट को भेजता है।
+    answerBubble.textContent = data.reply;
+
+    conversationHistory = [
+      ...pendingHistory,
+      { role: "assistant", content: data.reply }
+    ];
+
+  } catch (error) {
+    answerBubble.textContent =
+      "कनेक्शन में समस्या हुई: " + error.message +
+      " कृपया जाँचें कि backend server चालू है।";
+    answerBubble.classList.add("error");
+  } finally {
+    busy = false;
+    sendBtn.disabled = false;
+    promptBox.focus();
+    chatArea.scrollTop = chatArea.scrollHeight;
+  }
+});
 </script>
-
 </body>
 </html>
