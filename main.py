@@ -40,3 +40,56 @@ def chat_endpoint(data: ChatRequest):
         }
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+import os
+from fastapi import FastAPI, HTTPException
+from pydantic import BaseModel
+import anthropic
+
+app = FastAPI()
+
+# Anthropic client initialize करें (यह Render के Environment Variable से API Key उठा लेगा)
+client = anthropic.Anthropic(
+    api_key=os.environ.get("ANTHROPIC_API_KEY")
+)
+
+class ChatRequest(BaseModel):
+    mode: str
+    message: str
+    url: str = None
+    session_id: str
+
+@app.post("/api/chat")
+async def chat_endpoint(request: ChatRequest):
+    try:
+        # अगर यूज़र सामान्य चैट मोड में है
+        if request.mode == "chat":
+            response = client.messages.create(
+                model="claude-3-5-sonnet-20051022",  # या आपका पसंदीदा Claude मॉडल
+                max_tokens=1000,
+                messages=[
+                    {"role": "user", "content": request.message}
+                ]
+            )
+            reply_text = response.content[0].text
+            return {"reply": reply_text, "status": "सफलतापूर्वक पूरा हुआ"}
+
+        # अगर यूज़र वेबसाइट ऑटोमेशन/ब्राउज़र मोड में है
+        elif request.mode == "browser":
+            # यहाँ Playwright या ब्राउज़र ऑटोमेशन का कोड आएगा
+            # फिलहाल Claude को निर्देश भेजने का बेसिक सेटअप
+            prompt = f"वेबसाइट URL: {request.url}\nनिर्देश: {request.message}"
+            response = client.messages.create(
+                model="claude-3-5-sonnet-20051022",
+                max_tokens=1000,
+                messages=[
+                    {"role": "user", "content": prompt}
+                ]
+            )
+            reply_text = response.content[0].text
+            return {"reply": reply_text, "status": "वेबसाइट पर काम पूरा हुआ"}
+
+        else:
+            raise HTTPException(status_code=400, detail="अमान्य मोड (Invalid mode)")
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
