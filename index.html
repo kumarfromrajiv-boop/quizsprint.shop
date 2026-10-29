@@ -151,12 +151,12 @@
   <details>
     <summary>यह सिस्टम कैसे काम करता है?</summary>
     <p>
-      1. यूज़र इस GitHub Pages वेबसाइट पर निर्देश लिखता है।<br>
-      2. JavaScript निर्देश को Render के backend API तक भेजता है।<br>
-      3. सामान्य चैट के लिए Render, Claude API से जवाब लेता है।<br>
+      1. यूज़र इस GitHub Pages वेबसाइट पर निर्देश लिखता है。<br>
+      2. JavaScript निर्देश को Render के backend API तक भेजता है。<br>
+      3. सामान्य चैट के लिए Render, Claude API से जवाब लेता है。<br>
       4. वेबसाइट ऑटोमेशन के लिए Render पर Python और Playwright
-      ब्राउज़र खोलकर पेज की जानकारी लेते हैं और ज़रूरी कार्रवाई करते हैं।<br>
-      5. Claude अगले कदम का निर्णय लेने में मदद करता है।<br>
+      ब्राउज़र खोलकर पेज की जानकारी लेते हैं और ज़रूरी कार्रवाई करते हैं。<br>
+      5. Claude अगले कदम का निर्णय लेने में मदद करता है。<br>
       6. जवाब Render से वापस इस चैट में आता है।
     </p>
   </details>
@@ -165,8 +165,8 @@
 </div>
 
 <script>
-  // Render पर डिप्लॉय करने के बाद अपना वास्तविक backend URL डालें।
-  const RENDER_BACKEND_URL = "https://YOUR-RENDER-SERVICE.onrender.com";
+  // आपके Render सर्वर का लाइव यूआरएल यहाँ सेट किया गया है
+  const RENDER_BACKEND_URL = "https://quizsprint-shop.onrender.com";
 
   const mode = document.getElementById("mode");
   const websiteFields = document.getElementById("websiteFields");
@@ -203,11 +203,6 @@
 
     if (selectedMode === "browser" && !url) {
       statusBox.textContent = "पहले वेबसाइट का URL डालें।";
-      return;
-    }
-
-    if (RENDER_BACKEND_URL.includes("YOUR-RENDER-SERVICE")) {
-      statusBox.textContent = "https://quizsprint-shop.onrender.com
       return;
     }
 
