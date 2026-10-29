@@ -2,38 +2,69 @@
 <html lang="hi">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#ffffff">
   <title>AI Studio - Claude AI</title>
+
   <style>
-    * { box-sizing: border-box; }
+    * {
+      box-sizing: border-box;
+    }
+
+    :root {
+      --accent: #c66a43;
+      --border: #eeeeee;
+      --text: #242424;
+      --muted: #777777;
+      --bg: #ffffff;
+    }
 
     body {
       margin: 0;
       font-family: Arial, sans-serif;
-      background: #fff;
-      color: #242424;
+      background: var(--bg);
+      color: var(--text);
+    }
+
+    button, textarea, input, select {
+      font: inherit;
+    }
+
+    button {
+      cursor: pointer;
+    }
+
+    button:disabled {
+      opacity: .6;
+      cursor: not-allowed;
+    }
+
+    [hidden] {
+      display: none !important;
     }
 
     .app {
       min-height: 100vh;
-      display: flex;
-      flex-direction: column;
+      min-height: 100dvh;
       max-width: 900px;
       margin: auto;
+      display: flex;
+      flex-direction: column;
     }
 
     header {
       padding: 18px;
-      border-bottom: 1px solid #eee;
+      border-bottom: 1px solid var(--border);
       font-size: 20px;
       font-weight: 700;
+      background: #fff;
     }
 
     .intro {
       padding: 18px;
       color: #555;
-      font-size: 14px;
-      line-height: 1.6;
+      font-size: 15px;
+      line-height: 1.7;
     }
 
     main {
@@ -43,18 +74,24 @@
 
     label {
       display: block;
-      font-size: 14px;
+      font-size: 15px;
       margin: 14px 0 7px;
       font-weight: 600;
     }
 
     input, textarea, select {
       width: 100%;
-      padding: 12px;
+      padding: 13px;
       border: 1px solid #ddd;
-      border-radius: 10px;
-      font: inherit;
+      border-radius: 12px;
       background: white;
+      color: var(--text);
+      outline: none;
+    }
+
+    input:focus, textarea:focus, select:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 2px #c66a4320;
     }
 
     textarea {
@@ -62,195 +99,766 @@
       resize: vertical;
     }
 
-    button {
+    .primary {
       border: 0;
-      border-radius: 10px;
-      background: #c66a43;
+      border-radius: 11px;
+      background: var(--accent);
       color: white;
-      font-size: 15px;
-      padding: 12px 18px;
-      cursor: pointer;
+      padding: 14px 18px;
+      font-size: 16px;
     }
 
-    button:disabled { opacity: .6; }
-
-    .send { margin-top: 12px; width: 100%; }
-
-    #messages {
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-      margin-top: 22px;
+    .send {
+      width: 100%;
+      margin-top: 12px;
     }
 
-    .message {
-      padding: 13px 15px;
-      border-radius: 12px;
-      white-space: pre-wrap;
-      overflow-wrap: anywhere;
-      line-height: 1.55;
+    .status {
+      color: var(--muted);
+      font-size: 13px;
+      margin-top: 10px;
+      line-height: 1.5;
     }
-
-    .user { background: #f5f2ef; align-self: flex-end; max-width: 90%; }
-    .assistant { background: #f8f8f7; align-self: stretch; }
-    .status { color: #777; font-size: 13px; margin-top: 10px; }
 
     details {
       margin: 18px;
       padding: 14px;
-      border: 1px solid #eee;
+      border: 1px solid var(--border);
       border-radius: 10px;
       font-size: 14px;
-      line-height: 1.6;
+      line-height: 1.7;
     }
 
     footer {
-      border-top: 1px solid #eee;
-      padding: 15px;
-      color: #777;
+      padding: 16px;
+      color: var(--muted);
       font-size: 12px;
       text-align: center;
     }
+
+    /* Chat page */
+
+    #chatView {
+      min-height: 100vh;
+      min-height: 100dvh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .chat-header {
+      position: sticky;
+      top: 0;
+      z-index: 5;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 14px;
+      background: white;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .back-button, .new-chat-button {
+      border: 1px solid var(--border);
+      background: white;
+      color: var(--text);
+      border-radius: 10px;
+      padding: 10px 12px;
+      flex-shrink: 0;
+    }
+
+    .chat-title {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .chat-title strong {
+      display: block;
+      font-size: 17px;
+    }
+
+    .chat-title small {
+      display: block;
+      margin-top: 4px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    #chatMessages {
+      flex: 1;
+      width: 100%;
+      padding: 18px 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+
+    .message {
+      padding: 13px 15px;
+      border-radius: 15px;
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
+      line-height: 1.65;
+      font-size: 16px;
+    }
+
+    .message.user {
+      background: #f5f2ef;
+      align-self: flex-end;
+      max-width: 88%;
+      border-bottom-right-radius: 4px;
+    }
+
+    .message.assistant {
+      background: #f7f7f6;
+      align-self: stretch;
+      border-bottom-left-radius: 4px;
+    }
+
+    .message-label {
+      display: block;
+      margin-bottom: 6px;
+      font-size: 11px;
+      font-weight: 700;
+      color: #777;
+    }
+
+    .typing {
+      color: var(--muted);
+      padding: 4px 3px;
+      font-size: 13px;
+    }
+
+    /* Always-visible chat input */
+
+    .composer {
+      position: sticky;
+      bottom: 0;
+      z-index: 10;
+      padding: 10px 12px;
+      padding-bottom: max(10px, env(safe-area-inset-bottom));
+      background: rgba(255, 255, 255, .98);
+      border-top: 1px solid var(--border);
+    }
+
+    .composer-form {
+      display: flex;
+      align-items: flex-end;
+      gap: 9px;
+      max-width: 850px;
+      margin: auto;
+    }
+
+    #chatInput {
+      flex: 1;
+      width: 0;
+      min-height: 48px;
+      max-height: 140px;
+      resize: none;
+      border: 1px solid #ddd;
+      border-radius: 24px;
+      padding: 13px 16px;
+      font-size: 16px;
+      line-height: 1.4;
+      overflow-y: auto;
+    }
+
+    #chatSendButton {
+      width: 49px;
+      height: 49px;
+      flex-shrink: 0;
+      padding: 0;
+      border-radius: 50%;
+      background: var(--accent);
+      color: white;
+      border: 0;
+      font-size: 22px;
+    }
+
+    #chatStatus {
+      max-width: 850px;
+      margin: 5px auto 0;
+      padding: 0 5px;
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    @media (max-width: 600px) {
+      .intro {
+        font-size: 14px;
+      }
+
+      main {
+        padding: 16px;
+      }
+
+      .chat-header {
+        padding: 11px;
+        gap: 8px;
+      }
+
+      .chat-title strong {
+        font-size: 15px;
+      }
+
+      .back-button, .new-chat-button {
+        padding: 10px;
+        font-size: 13px;
+      }
+
+      #chatMessages {
+        padding: 16px 12px;
+      }
+    }
   </style>
 </head>
+
 <body>
-<div class="app">
+
+<!-- FIRST PAGE -->
+<div class="app" id="homeView">
+
   <header>✳ AI Studio — Claude AI</header>
 
   <div class="intro">
-    Claude AI से चैट करें या Playwright ब्राउज़र के ज़रिए किसी वेबसाइट पर
-    काम करवाने का अनुरोध करें।
+    Claude AI से चैट करें या Playwright ब्राउज़र के ज़रिए किसी
+    वेबसाइट पर काम करवाने का अनुरोध करें।
   </div>
 
   <main>
-    <label for="mode">आप क्या करना चाहते हैं?</label>
-    <select id="mode">
-      <option value="chat">Claude से सामान्य चैट</option>
-      <option value="browser">वेबसाइट पर काम करवाना</option>
-    </select>
+    <form id="firstMessageForm">
 
-    <div id="websiteFields" hidden>
-      <label for="website">वेबसाइट का URL</label>
-      <input id="website" type="url" placeholder="https://example.com">
+      <label for="mode">आप क्या करना चाहते हैं?</label>
 
-      <p class="status">
-        केवल उसी वेबसाइट पर काम करें जिसे खोलने की अनुमति आपके पास है।
-        पासवर्ड या OTP चैट में भेजने से पहले सावधानी बरतें।
-      </p>
-    </div>
+      <select id="mode">
+        <option value="chat">Claude से सामान्य चैट</option>
+        <option value="browser">वेबसाइट पर काम करवाना</option>
+      </select>
 
-    <label for="message">अपना निर्देश लिखें</label>
-    <textarea id="message"
-      placeholder="उदाहरण: इस पेज को खोलकर बताओ कि इसमें क्या जानकारी है।"></textarea>
+      <div id="websiteFields" hidden>
+        <label for="website">वेबसाइट का URL</label>
+        <input
+          id="website"
+          type="url"
+          placeholder="https://example.com"
+        >
 
-    <button class="send" id="sendButton">भेजें</button>
-    <div class="status" id="status"></div>
-    <section id="messages" aria-live="polite"></section>
+        <p class="status">
+          केवल उसी वेबसाइट पर काम करें जिसे खोलने की अनुमति आपके पास है।
+          पासवर्ड या OTP चैट में भेजने से पहले सावधानी बरतें।
+        </p>
+      </div>
+
+      <label for="message">अपना निर्देश लिखें</label>
+
+      <textarea
+        id="message"
+        placeholder="यहाँ अपना मैसेज लिखें..."
+        required
+      ></textarea>
+
+      <button class="primary send" id="firstSendButton" type="submit">
+        भेजें
+      </button>
+
+      <div class="status" id="homeStatus" role="status"></div>
+
+    </form>
   </main>
 
   <details>
     <summary>यह सिस्टम कैसे काम करता है?</summary>
     <p>
-      1. यूज़र इस GitHub Pages वेबसाइट पर निर्देश लिखता है。<br>
-      2. JavaScript निर्देश को Render के backend API तक भेजता है。<br>
-      3. सामान्य चैट के लिए Render, Claude API से जवाब लेता है。<br>
-      4. वेबसाइट ऑटोमेशन के लिए Render पर Python और Playwright
-      ब्राउज़र खोलकर पेज की जानकारी लेते हैं और ज़रूरी कार्रवाई करते हैं。<br>
-      5. Claude अगले कदम का निर्णय लेने में मदद करता है。<br>
-      6. जवाब Render से वापस इस चैट में आता है।
+      1. यूज़र अपना निर्देश लिखता है।<br>
+      2. चैट पेज पर मैसेज और AI का जवाब दिखाई देता है।<br>
+      3. नीचे दिए गए इनपुट से अगला मैसेज भेजा जा सकता है।<br>
+      4. Render का backend Claude API से जवाब प्राप्त करता है।<br>
+      5. वेबसाइट ऑटोमेशन के लिए backend Playwright का उपयोग कर सकता है।
     </p>
   </details>
 
   <footer>Demo project · API keys को फ्रंटएंड में न रखें</footer>
 </div>
 
+
+<!-- CHAT PAGE -->
+<div id="chatView" hidden>
+
+  <header class="chat-header">
+
+    <button class="back-button" id="backButton" type="button"
+      aria-label="वापस जाएँ">
+      ←
+    </button>
+
+    <div class="chat-title">
+      <strong>✳ AI Studio</strong>
+      <small id="chatModeLabel">Claude AI · चैट</small>
+    </div>
+
+    <button class="new-chat-button" id="newChatButton" type="button">
+      नई चैट
+    </button>
+
+  </header>
+
+  <section
+    id="chatMessages"
+    aria-live="polite"
+    aria-label="चैट संदेश"
+  ></section>
+
+  <div class="composer">
+
+    <form class="composer-form" id="chatForm">
+
+      <textarea
+        id="chatInput"
+        rows="1"
+        aria-label="अपना मैसेज लिखें"
+        placeholder="यहाँ मैसेज लिखें..."
+        enterkeyhint="send"
+        required
+      ></textarea>
+
+      <button
+        id="chatSendButton"
+        type="submit"
+        aria-label="मैसेज भेजें"
+        title="भेजें"
+      >↑</button>
+
+    </form>
+
+    <div id="chatStatus" role="status">
+      मैसेज लिखकर भेजें।
+    </div>
+
+  </div>
+
+</div>
+
+
 <script>
-  // आपके Render सर्वर का लाइव यूआरएल यहाँ सेट किया गया है
-  const RENDER_BACKEND_URL = "https://quizsprint-shop.onrender.com";
+(() => {
+  "use strict";
 
-  const mode = document.getElementById("mode");
-  const websiteFields = document.getElementById("websiteFields");
-  const sendButton = document.getElementById("sendButton");
-  const messageInput = document.getElementById("message");
-  const websiteInput = document.getElementById("website");
-  const statusBox = document.getElementById("status");
-  const messages = document.getElementById("messages");
+  // आपका मौजूदा Render backend URL
+  const RENDER_BACKEND_URL =
+    "https://quizsprint-shop.onrender.com";
 
-  // इस ID से backend को एक बातचीत की पहचान मिलती है।
-  const sessionId = crypto.randomUUID();
+  // लोकल चैट डेटा की keys
+  const STORAGE_KEY = "goodNewsChatData_v2";
 
-  mode.addEventListener("change", () => {
-    websiteFields.hidden = mode.value !== "browser";
-  });
+  const $ = id => document.getElementById(id);
 
-  function addMessage(role, text) {
-    const item = document.createElement("div");
-    item.className = "message " + role;
-    item.textContent = text;
-    messages.appendChild(item);
-    item.scrollIntoView({ behavior: "smooth", block: "end" });
+  const homeView = $("homeView");
+  const chatView = $("chatView");
+
+  const firstMessageForm = $("firstMessageForm");
+  const modeInput = $("mode");
+  const websiteInput = $("website");
+  const messageInput = $("message");
+  const firstSendButton = $("firstSendButton");
+  const homeStatus = $("homeStatus");
+
+  const chatMessages = $("chatMessages");
+  const chatForm = $("chatForm");
+  const chatInput = $("chatInput");
+  const chatSendButton = $("chatSendButton");
+  const chatStatus = $("chatStatus");
+  const chatModeLabel = $("chatModeLabel");
+
+  let sending = false;
+  let requestNumber = 0;
+  let typingIndicator = null;
+
+  function makeId() {
+    if (window.crypto && crypto.randomUUID) {
+      return crypto.randomUUID();
+    }
+
+    return "session-" +
+      Date.now() + "-" +
+      Math.random().toString(36).slice(2);
   }
 
-  async function sendMessage() {
-    const message = messageInput.value.trim();
-    const selectedMode = mode.value;
-    const url = websiteInput.value.trim();
+  function newConversation() {
+    return {
+      sessionId: makeId(),
+      mode: "chat",
+      url: "",
+      history: []
+    };
+  }
 
-    if (!message) {
-      statusBox.textContent = "पहले अपना निर्देश लिखें।";
-      return;
+  function loadConversation() {
+    try {
+      const saved = localStorage.getItem(STORAGE_KEY);
+
+      if (saved) {
+        const parsed = JSON.parse(saved);
+
+        if (
+          parsed &&
+          typeof parsed.sessionId === "string" &&
+          Array.isArray(parsed.history)
+        ) {
+          return {
+            sessionId: parsed.sessionId,
+            mode: parsed.mode === "browser" ? "browser" : "chat",
+            url: typeof parsed.url === "string" ? parsed.url : "",
+            history: parsed.history.filter(item =>
+              item &&
+              ["user", "assistant"].includes(item.role) &&
+              typeof item.text === "string"
+            )
+          };
+        }
+      }
+    } catch (error) {
+      console.warn("Chat data load failed:", error);
     }
 
-    if (selectedMode === "browser" && !url) {
-      statusBox.textContent = "पहले वेबसाइट का URL डालें।";
-      return;
+    return newConversation();
+  }
+
+  let conversation = loadConversation();
+
+  function saveConversation() {
+    try {
+      localStorage.setItem(
+        STORAGE_KEY,
+        JSON.stringify(conversation)
+      );
+    } catch (error) {
+      console.warn("Chat data save failed:", error);
+      chatStatus.textContent =
+        "चैट स्थानीय रूप से सेव नहीं हो सकी।";
+    }
+  }
+
+  function addMessage(role, text) {
+    conversation.history.push({
+      role,
+      text,
+      time: Date.now()
+    });
+
+    saveConversation();
+    renderMessages();
+  }
+
+  function renderMessages() {
+    chatMessages.replaceChildren();
+
+    conversation.history.forEach(item => {
+      const bubble = document.createElement("div");
+      bubble.className = "message " + item.role;
+
+      const label = document.createElement("span");
+      label.className = "message-label";
+      label.textContent =
+        item.role === "user" ? "आप" : "AI";
+
+      const content = document.createElement("div");
+      content.textContent = item.text;
+
+      bubble.append(label, content);
+      chatMessages.appendChild(bubble);
+    });
+
+    if (typingIndicator) {
+      chatMessages.appendChild(typingIndicator);
     }
 
-    addMessage("user", message);
-    messageInput.value = "";
-    sendButton.disabled = true;
-    statusBox.textContent = "जवाब का इंतज़ार हो रहा है…";
+    requestAnimationFrame(() => {
+      window.scrollTo({
+        top: document.documentElement.scrollHeight,
+        behavior: "smooth"
+      });
+    });
+  }
+
+  function showChat() {
+    homeView.hidden = true;
+    chatView.hidden = false;
+
+    chatModeLabel.textContent =
+      conversation.mode === "browser"
+        ? "Claude AI · वेबसाइट ऑटोमेशन"
+        : "Claude AI · चैट";
+
+    renderMessages();
+  }
+
+  function showHome() {
+    chatView.hidden = true;
+    homeView.hidden = false;
+  }
+
+  function openChatPage() {
+    if (location.hash !== "#chat") {
+      history.pushState({ page: "chat" }, "", "#chat");
+    }
+
+    showChat();
+  }
+
+  function goHome() {
+    if (location.hash === "#chat") {
+      history.pushState({ page: "home" }, "", location.pathname +
+        location.search);
+    }
+
+    showHome();
+  }
+
+  function showTyping() {
+    typingIndicator = document.createElement("div");
+    typingIndicator.className = "typing";
+    typingIndicator.textContent = "AI जवाब लिख रहा है…";
+
+    renderMessages();
+  }
+
+  function hideTyping() {
+    typingIndicator = null;
+    renderMessages();
+  }
+
+  modeInput.addEventListener("change", () => {
+    $("websiteFields").hidden = modeInput.value !== "browser";
+  });
+
+  async function sendToBackend(message) {
+    const requestId = ++requestNumber;
+
+    sending = true;
+    firstSendButton.disabled = true;
+    chatSendButton.disabled = true;
+
+    homeStatus.textContent = "";
+    chatStatus.textContent = "जवाब का इंतज़ार हो रहा है…";
+
+    showTyping();
 
     try {
       const response = await fetch(
         RENDER_BACKEND_URL.replace(/\/$/, "") + "/api/chat",
         {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          headers: {
+            "Content-Type": "application/json"
+          },
           body: JSON.stringify({
-            mode: selectedMode,
+            mode: conversation.mode,
             message,
-            url,
-            session_id: sessionId
+            url: conversation.url,
+            session_id: conversation.sessionId
           })
         }
       );
 
-      const data = await response.json();
+      // कुछ सर्वर त्रुटि की स्थिति में JSON के बजाय
+      // साधारण टेक्स्ट भी भेज सकते हैं।
+      const responseText = await response.text();
 
-      if (!response.ok) {
-        throw new Error(data.error || "सर्वर से अनुरोध पूरा नहीं हुआ।");
+      let data;
+
+      try {
+        data = JSON.parse(responseText);
+      } catch {
+        throw new Error(
+          "सर्वर ने सही JSON जवाब नहीं दिया। Render logs देखें।"
+        );
       }
 
-      addMessage("assistant", data.reply || "सर्वर से खाली जवाब मिला।");
-      statusBox.textContent = data.status || "पूरा हुआ";
+      if (!response.ok) {
+        throw new Error(
+          data.error || "सर्वर से अनुरोध पूरा नहीं हुआ।"
+        );
+      }
+
+      if (requestId !== requestNumber) {
+        return;
+      }
+
+      const reply =
+        typeof data.reply === "string" && data.reply.trim()
+          ? data.reply
+          : "सर्वर से खाली जवाब मिला।";
+
+      hideTyping();
+      addMessage("assistant", reply);
+
+      chatStatus.textContent = data.status || "जवाब मिल गया।";
+
     } catch (error) {
-      addMessage("assistant", "त्रुटि: " + error.message);
-      statusBox.textContent =
-        "कनेक्शन या सर्वर में समस्या आई। Render के logs देखें।";
+      if (requestId !== requestNumber) {
+        return;
+      }
+
+      hideTyping();
+
+      addMessage(
+        "assistant",
+        "त्रुटि: " + (
+          error.message ||
+          "सर्वर से कनेक्शन नहीं हो सका।"
+        )
+      );
+
+      chatStatus.textContent =
+        "कनेक्शन में समस्या आई। Render के logs देखें।";
+
     } finally {
-      sendButton.disabled = false;
+      if (requestId === requestNumber) {
+        sending = false;
+        firstSendButton.disabled = false;
+        chatSendButton.disabled = false;
+      }
     }
   }
 
-  sendButton.addEventListener("click", sendMessage);
+  // पहली बार मैसेज भेजना: चैट पेज खोलना
+  firstMessageForm.addEventListener("submit", async event => {
+    event.preventDefault();
 
-  messageInput.addEventListener("keydown", event => {
-    if (event.key === "Enter" && !event.shiftKey) {
+    if (sending) return;
+
+    const message = messageInput.value.trim();
+    const selectedMode = modeInput.value;
+    const url = websiteInput.value.trim();
+
+    if (!message) {
+      homeStatus.textContent = "पहले अपना मैसेज लिखें।";
+      messageInput.focus();
+      return;
+    }
+
+    if (selectedMode === "browser") {
+      try {
+        const parsedUrl = new URL(url);
+
+        if (!["http:", "https:"].includes(parsedUrl.protocol)) {
+          throw new Error("Invalid URL");
+        }
+      } catch {
+        homeStatus.textContent =
+          "कृपया सही वेबसाइट URL डालें, जैसे https://example.com";
+        websiteInput.focus();
+        return;
+      }
+    }
+
+    conversation.mode = selectedMode;
+    conversation.url = selectedMode === "browser" ? url : "";
+    conversation.history = [];
+
+    addMessage("user", message);
+
+    // मैसेज भेजते ही नया चैट पेज दिखाएँ
+    openChatPage();
+
+    messageInput.value = "";
+
+    await sendToBackend(message);
+  });
+
+  // चैट पेज पर आगे के सभी मैसेज
+  chatForm.addEventListener("submit", async event => {
+    event.preventDefault();
+
+    if (sending) return;
+
+    const message = chatInput.value.trim();
+
+    if (!message) {
+      chatInput.focus();
+      return;
+    }
+
+    chatInput.value = "";
+    chatInput.style.height = "auto";
+
+    addMessage("user", message);
+
+    await sendToBackend(message);
+  });
+
+  // मोबाइल पर Enter से भेजें; Shift+Enter से नई लाइन
+  function handleEnterToSend(event) {
+    if (
+      event.key === "Enter" &&
+      !event.shiftKey &&
+      !event.isComposing
+    ) {
       event.preventDefault();
-      sendMessage();
+
+      const form = event.currentTarget.form;
+
+      if (form) {
+        form.requestSubmit();
+      }
+    }
+  }
+
+  messageInput.addEventListener("keydown", handleEnterToSend);
+  chatInput.addEventListener("keydown", handleEnterToSend);
+
+  // लिखते समय textarea की ऊँचाई बढ़ाएँ
+  chatInput.addEventListener("input", () => {
+    chatInput.style.height = "auto";
+
+    chatInput.style.height =
+      Math.min(chatInput.scrollHeight, 140) + "px";
+  });
+
+  // चैट के अंदर वापस जाने पर पहला पेज दिखाएँ
+  $("backButton").addEventListener("click", goHome);
+
+  // नई बातचीत शुरू करें
+  $("newChatButton").addEventListener("click", () => {
+    if (sending) {
+      chatStatus.textContent =
+        "पहले मौजूदा अनुरोध पूरा होने दें।";
+      return;
+    }
+
+    conversation = newConversation();
+    saveConversation();
+
+    messageInput.value = "";
+    chatInput.value = "";
+    homeStatus.textContent = "";
+    chatStatus.textContent = "नई चैट शुरू करें।";
+
+    modeInput.value = "chat";
+    websiteInput.value = "";
+    $("websiteFields").hidden = true;
+
+    goHome();
+    messageInput.focus();
+  });
+
+  // ब्राउज़र के Back/Forward बटन को संभालें
+  window.addEventListener("popstate", () => {
+    if (location.hash === "#chat" && conversation.history.length) {
+      showChat();
+    } else {
+      showHome();
     }
   });
+
+  // पेज रीफ्रेश होने पर सेव की हुई चैट फिर दिखाएँ
+  if (location.hash === "#chat" && conversation.history.length) {
+    showChat();
+  } else {
+    showHome();
+  }
+
+})();
 </script>
+
 </body>
 </html>
