@@ -9,16 +9,14 @@
     body { margin: 0; font-family: Arial, sans-serif; background: #fff; color: #242424; }
     .app { min-height: 100vh; display: flex; flex-direction: column; max-width: 1100px; margin: auto; }
     header { padding: 18px; border-bottom: 1px solid #eee; font-size: 20px; font-weight: 700; }
-    .intro { padding: 18px; color: #555; font-size: 14px; line-height: 1.6; }
     main { flex: 1; padding: 18px; }
     label { display: block; font-size: 14px; margin: 14px 0 7px; font-weight: 600; }
     input, textarea, select { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 10px; font: inherit; background: white; }
-    textarea { min-height: 95px; resize: vertical; }
+    textarea { min-height: 110px; resize: vertical; }
     button { border: 0; border-radius: 10px; background: #c66a43; color: white; font-size: 15px; padding: 12px 18px; cursor: pointer; }
     button:disabled { opacity: .6; cursor: wait; }
     .send { margin-top: 12px; width: 100%; }
     .status { color: #777; font-size: 13px; margin-top: 10px; }
-    details { margin: 18px; padding: 14px; border: 1px solid #eee; border-radius: 10px; font-size: 14px; line-height: 1.6; }
     footer { border-top: 1px solid #eee; padding: 15px; color: #777; font-size: 12px; text-align: center; }
     #pageResult { display: flex; flex-direction: column; flex: 1; }
     #pageResult[hidden] { display: none; }
@@ -50,52 +48,27 @@
   <header>✳ AI Studio — Claude AI</header>
 
   <div id="pageForm">
-    <div class="intro">
-      Claude AI से चैट करें, या किसी वेबसाइट पर काम करवाएँ।
-      काम का रास्ता: आप → GitHub पेज → Claude → Render (ब्राउज़र)।
-      जवाब या सवाल उल्टे रास्ते से आप तक आता है।
-    </div>
-
     <main>
       <label for="mode">आप क्या करना चाहते हैं?</label>
       <select id="mode">
-        <option value="chat">Claude से सामान्य चैट (Direct API)</option>
-        <option value="browser">वेबसाइट पर काम करवाना (Claude → Render)</option>
+        <option value="chat">AI से सामान्य चैट</option>
+        <option value="browser">AI से काम करवाना</option>
       </select>
 
+      <!-- सिर्फ़ "AI से काम करवाना" चुनने पर दिखेगा -->
       <div id="websiteFields" hidden>
         <label for="website">वेबसाइट का URL</label>
         <input id="website" type="url" placeholder="https://example.com">
         <p class="status">केवल उसी वेबसाइट पर काम करें जिसे खोलने की अनुमति आपके पास है।</p>
-
-        <label for="backendKey">Backend Key (वैकल्पिक)</label>
-        <input id="backendKey" type="password" autocomplete="off" placeholder="अपनी backend key यहाँ डालें">
-        <p class="status">यह key कोड में सेव नहीं होती। इसे हर बार यहीं डालें।</p>
       </div>
 
-      <div id="apiKeyFields">
-        <label for="apiKey">Claude API Key (वैकल्पिक, कोड में पहले से है)</label>
-        <input id="apiKey" type="password" autocomplete="off" placeholder="खाली छोड़ने पर कोड वाली key चलेगी">
-        <p class="status">इस फ़ाइल को सार्वजनिक GitHub या वेबसाइट पर न डालें।</p>
-      </div>
-
-      <label for="message">अपना निर्देश लिखें</label>
-      <textarea id="message" placeholder="उदाहरण: भारत की राजधानी क्या है?"></textarea>
+      <label for="message" id="messageLabel">अपना संदेश लिखें</label>
+      <textarea id="message" placeholder="यहाँ कुछ भी लिखें…"></textarea>
       <button class="send" id="sendButton">भेजें</button>
       <div class="status" id="status"></div>
     </main>
 
-    <details>
-      <summary>यह सिस्टम कैसे काम करता है?</summary>
-      <p>
-        <b>सामान्य चैट:</b> यह पेज Claude API को सीधे अनुरोध भेजता है और जवाब दिखाता है।<br><br>
-        <b>Browser Mode:</b> आपका निर्देश पहले Claude के पास जाता है। Claude उसे टास्क बनाकर Render के Playwright ब्राउज़र को भेजता है।
-        अगर Render को कोई जानकारी चाहिए, तो वह Claude को बताता है, Claude पेज को बताता है, और पेज आपसे पूछता है।
-        आपका जवाब वापस उसी रास्ते से Render तक जाता है।
-      </p>
-    </details>
-
-    <footer>AI Studio · अपनी API key सार्वजनिक न करें</footer>
+    <footer>AI Studio</footer>
   </div>
 
   <div id="pageResult" hidden>
@@ -119,12 +92,12 @@
 </div>
 
 <script>
-  const RENDER_BACKEND_URL =[https://quizsprint-shop.onrender.com]
+  const RENDER_BACKEND_URL = "https://quizsprint-shop.onrender.com";
   const CLAUDE_API_URL = "https://api.anthropic.com/v1/messages";
   const CLAUDE_MODEL = "claude-sonnet-4-20250514";
-  const CLAUDE_API_KEY = "sk-live-9b51a31723bd2d12edaeb375e5f78a1de1e38fcef85e9d8dd2d257d7864ba339";
+  // यहाँ अपनी नई API key डालें (पुरानी key revoke कर दें)
+  const CLAUDE_API_KEY = "YOUR_NEW_API_KEY_HERE";
 
-  // Claude को दिए जाने वाले निर्देश (Browser Mode के लिए)
   const PLANNER_SYSTEM =
     "तुम एक कोऑर्डिनेटर हो। यूज़र का निर्देश एक ब्राउज़र एजेंट (Playwright, Render पर) को भेजा जाएगा। " +
     "उसे साफ़, क्रमवार टास्क में बदलो। सिर्फ़ टास्क का टेक्स्ट लिखो, और कुछ नहीं। " +
@@ -144,27 +117,39 @@
   const $ = id => document.getElementById(id);
   const mode = $("mode");
   const websiteFields = $("websiteFields");
+  const messageLabel = $("messageLabel");
   const sendButton = $("sendButton");
   const backButton = $("backButton");
   const replyButton = $("replyButton");
   const messageInput = $("message");
   const replyInput = $("replyInput");
   const websiteInput = $("website");
-  const apiKeyInput = $("apiKey");
-  const backendKeyInput = $("backendKey");
   const statusBox = $("status");
   const resultStatus = $("resultStatus");
   const pairs = $("pairs");
   const pageForm = $("pageForm");
   const pageResult = $("pageResult");
 
-  const sessionId = crypto.randomUUID();
+  const sessionId = (window.crypto && crypto.randomUUID)
+    ? crypto.randomUUID()
+    : "s-" + Date.now() + "-" + Math.random().toString(36).slice(2);
   const chatHistory = [];
   let awaiting = null; // अगर Render ने यूज़र से कुछ पूछा है: { question, url }
 
-  mode.addEventListener("change", () => {
-    websiteFields.hidden = mode.value !== "browser";
-  });
+  // मोड बदलने पर फ़ॉर्म बदलना
+  function updateMode() {
+    if (mode.value === "browser") {
+      websiteFields.hidden = false;
+      messageLabel.textContent = "AI से क्या काम करवाना है?";
+      messageInput.placeholder = "उदाहरण: इस वेबसाइट पर जाकर सबसे सस्ता प्रोडक्ट ढूँढो";
+    } else {
+      websiteFields.hidden = true;
+      messageLabel.textContent = "अपना संदेश लिखें";
+      messageInput.placeholder = "यहाँ कुछ भी लिखें…";
+    }
+  }
+  mode.addEventListener("change", updateMode);
+  updateMode();
 
   function showPage(name) {
     const result = name === "result";
@@ -174,22 +159,31 @@
   }
 
   function goToResult() {
-    if (location.hash !== "#result") history.pushState(null, "", "#result");
     showPage("result");
+    try {
+      if (location.hash !== "#result") history.pushState(null, "", "#result");
+    } catch (e) {
+      // कुछ preview/iframe में history काम नहीं करती; पेज फिर भी खुल जाएगा
+    }
   }
 
   function goToForm() {
-    if (location.hash === "#result") history.back();
-    else showPage("form");
+    if (location.hash === "#result") {
+      try { history.back(); } catch (e) { showPage("form"); }
+    } else {
+      showPage("form");
+    }
   }
 
   window.addEventListener("popstate", () => {
     showPage(location.hash === "#result" && pairs.children.length ? "result" : "form");
   });
 
-  if (location.hash === "#result") {
-    history.replaceState(null, "", location.pathname + location.search);
-  }
+  try {
+    if (location.hash === "#result") {
+      history.replaceState(null, "", location.pathname + location.search);
+    }
+  } catch (e) {}
 
   function addPair(userText) {
     const pair = document.createElement("div");
@@ -233,11 +227,8 @@
     }
   }
 
-  // Claude API को एक अनुरोध भेजना
+  // Claude API को अनुरोध भेजना
   async function claudeRequest(messages, system, maxTokens = 2048) {
-    const apiKey = apiKeyInput.value.trim() || CLAUDE_API_KEY;
-    if (!apiKey) throw new Error("पहले Claude API Key डालें।");
-
     const body = { model: CLAUDE_MODEL, max_tokens: maxTokens, messages };
     if (system) body.system = system;
 
@@ -245,7 +236,7 @@
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "x-api-key": apiKey,
+        "x-api-key": CLAUDE_API_KEY,
         "anthropic-version": "2023-06-01",
         "anthropic-dangerous-direct-browser-access": "true"
       },
@@ -277,15 +268,11 @@
 
   // Render backend (Playwright ब्राउज़र एजेंट) को टास्क भेजना
   async function callBrowserBackend(task, url, isFollowup) {
-    const headers = { "Content-Type": "application/json" };
-    const backendKey = backendKeyInput.value.trim();
-    if (backendKey) headers["Authorization"] = "Bearer " + backendKey;
-
     const response = await fetch(
       RENDER_BACKEND_URL.replace(/\/$/, "") + "/api/chat",
       {
         method: "POST",
-        headers,
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           mode: "browser",
           message: task,
@@ -302,9 +289,8 @@
     return data.reply;
   }
 
-  // Browser Mode: GitHub पेज → Claude → Render → Claude → पेज → यूज़र
+  // काम करवाना: पेज → Claude → Render → Claude → पेज → यूज़र
   async function callBrowserFlow(message, url, answerCol) {
-    // 1) पेज → Claude: टास्क बनवाना
     setProgress(answerCol, "① आपका संदेश Claude को भेजा जा रहा है…");
     let plannerInput = `वेबसाइट: ${url}\nयूज़र का निर्देश: ${message}`;
     if (awaiting) {
@@ -314,12 +300,10 @@
     }
     const task = await claudeRequest([{ role: "user", content: plannerInput }], PLANNER_SYSTEM, 1024);
 
-    // 2) Claude → Render
-    setProgress(answerCol, "② Claude ने टास्क Render के ब्राउज़र एजेंट को भेजा, काम चल रहा है…");
+    setProgress(answerCol, "② टास्क ब्राउज़र एजेंट को भेजा गया, काम चल रहा है…");
     const agentReply = await callBrowserBackend(task, url, !!awaiting);
 
-    // 3) Render का जवाब → Claude जाँचता है
-    setProgress(answerCol, "③ Render का जवाब Claude जाँच रहा है…");
+    setProgress(answerCol, "③ जवाब जाँचा जा रहा है…");
     const verdictRaw = await claudeRequest(
       [{ role: "user", content: `ब्राउज़र एजेंट का जवाब:\n"""\n${agentReply}\n"""` }],
       JUDGE_SYSTEM,
@@ -327,10 +311,9 @@
     );
     const verdict = parseJson(verdictRaw) || { type: "done", message: verdictRaw };
 
-    // 4) अगर जानकारी चाहिए तो यूज़र से पूछना
     if (verdict.type === "need_input") {
       awaiting = { question: verdict.message, url };
-      return "🔔 ब्राउज़र एजेंट को आगे बढ़ने के लिए आपकी जानकारी चाहिए:\n\n" +
+      return "🔔 आगे बढ़ने के लिए आपकी जानकारी चाहिए:\n\n" +
         verdict.message +
         "\n\n(अपना जवाब नीचे के बॉक्स में लिखकर भेजिए।)";
     }
@@ -347,10 +330,13 @@
     const url = websiteInput.value.trim() || (awaiting ? awaiting.url : "");
 
     if (!message) {
-      errorBox.textContent = "पहले अपना निर्देश लिखें।";
+      errorBox.textContent = selectedMode === "browser"
+        ? "पहले लिखें कि AI से क्या काम करवाना है।"
+        : "पहले अपना संदेश लिखें।";
       return;
     }
 
+    // URL सिर्फ़ "काम करवाना" मोड में चाहिए
     if (selectedMode === "browser") {
       try {
         const parsedUrl = new URL(url);
