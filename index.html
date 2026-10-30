@@ -1,9 +1,9 @@
-<!DOCTYPE html>
+  <!DOCTYPE html>
 <html lang="hi">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>AI Studio - Claude AI</title>
+  <title>AI Studio - OpenRouter AI</title>
   <style>
     * { box-sizing: border-box; }
     body { margin: 0; font-family: Arial, sans-serif; background: #fff; color: #242424; }
@@ -39,13 +39,13 @@
       .pair { grid-template-columns: 1fr; gap: 8px; }
       .col.user, .col.assistant { order: 0; }
       .col.user::before { content: "आप"; display: block; font-size: 12px; font-weight: 700; color: #888; margin-bottom: 4px; }
-      .col.assistant::before { content: "Claude"; display: block; font-size: 12px; font-weight: 700; color: #888; margin-bottom: 4px; }
+      .col.assistant::before { content: "OpenRouter"; display: block; font-size: 12px; font-weight: 700; color: #888; margin-bottom: 4px; }
     }
   </style>
 </head>
 <body>
 <div class="app">
-  <header>✳ AI Studio — Claude AI</header>
+  <header>✳ AI Studio — OpenRouter AI</header>
 
   <div id="pageForm">
     <main>
@@ -55,7 +55,6 @@
         <option value="browser">AI से काम करवाना</option>
       </select>
 
-      <!-- सिर्फ़ "AI से काम करवाना" चुनने पर दिखेगा -->
       <div id="websiteFields" hidden>
         <label for="website">वेबसाइट का URL</label>
         <input id="website" type="url" placeholder="https://example.com">
@@ -78,7 +77,7 @@
         <div class="status" id="resultStatus"></div>
       </div>
       <div class="columns-head">
-        <div>Claude का जवाब</div>
+        <div>OpenRouter का जवाब</div>
         <div>आपका संदेश</div>
       </div>
       <section id="pairs" aria-live="polite"></section>
@@ -93,10 +92,12 @@
 
 <script>
   const RENDER_BACKEND_URL = "https://quizsprint-shop.onrender.com";
-  const CLAUDE_API_URL = "https://api.anthropic.com/v1/messages";
-  const CLAUDE_MODEL = "claude-sonnet-4-20250514";
-  // यहाँ अपनी नई API key डालें (पुरानी key revoke कर दें)
-  const CLAUDE_API_KEY = "YOUR_NEW_API_KEY_HERE";
+  
+  // यहाँ OpenRouter के सही URL और मॉडल दिए गए हैं
+  const OPENROUTER_API_URL = "https://openrouter.ai/api/v1/chat/completions";
+  const OPENROUTER_MODEL = "anthropic/claude-3.5-sonnet"; 
+  // यहाँ अपनी असली aicredits.in वाली ओपनराउटर की (API Key) डालें
+  const OPENROUTER_API_KEY = "Sk-or-v1-43be7e19b921fa4264ec6203b2815b546a1896d252e63389526be0bb3d0cf8cf";
 
   const PLANNER_SYSTEM =
     "तुम एक कोऑर्डिनेटर हो। यूज़र का निर्देश एक ब्राउज़र एजेंट (Playwright, Render पर) को भेजा जाएगा। " +
@@ -134,9 +135,8 @@
     ? crypto.randomUUID()
     : "s-" + Date.now() + "-" + Math.random().toString(36).slice(2);
   const chatHistory = [];
-  let awaiting = null; // अगर Render ने यूज़र से कुछ पूछा है: { question, url }
+  let awaiting = null;
 
-  // मोड बदलने पर फ़ॉर्म बदलना
   function updateMode() {
     if (mode.value === "browser") {
       websiteFields.hidden = false;
@@ -162,9 +162,7 @@
     showPage("result");
     try {
       if (location.hash !== "#result") history.pushState(null, "", "#result");
-    } catch (e) {
-      // कुछ preview/iframe में history काम नहीं करती; पेज फिर भी खुल जाएगा
-    }
+    } catch (e) {}
   }
 
   function goToForm() {
@@ -227,38 +225,41 @@
     }
   }
 
-  // Claude API को अनुरोध भेजना
-  async function claudeRequest(messages, system, maxTokens = 2048) {
-    const body = { model: CLAUDE_MODEL, max_tokens: maxTokens, messages };
-    if (system) body.system = system;
+  // OpenRouter के लिए सही और सटीक API रिक्वेस्ट फंक्शन
+  async function openrouterRequest(messages, system, maxTokens = 2048) {
+    let formattedMessages = [...messages];
+    if (system) {
+      formattedMessages.unshift({ role: "system", content: system });
+    }
 
-    const response = await fetch(CLAUDE_API_URL, {
+    const body = {
+      model: OPENROUTER_MODEL,
+      messages: formattedMessages,
+      max_tokens: maxTokens
+    };
+
+    const response = await fetch(OPENROUTER_API_URL, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "x-api-key": CLAUDE_API_KEY,
-        "anthropic-version": "2023-06-01",
-        "anthropic-dangerous-direct-browser-access": "true"
+        "Authorization": "Bearer " + OPENROUTER_API_KEY,
+        "HTTP-Referer": window.location.origin,
+        "X-Title": "AI Studio"
       },
       body: JSON.stringify(body)
     });
 
     const data = await response.json();
-    if (!response.ok) throw new Error(data.error?.message || `Claude API error: ${response.status}`);
+    if (!response.ok) throw new Error(data.error?.message || `OpenRouter API error: ${response.status}`);
 
-    const reply = (data.content || [])
-      .filter(block => block.type === "text")
-      .map(block => block.text)
-      .join("\n");
-
-    if (!reply) throw new Error("Claude से कोई टेक्स्ट जवाब नहीं मिला।");
+    const reply = data.choices?.[0]?.message?.content;
+    if (!reply) throw new Error("OpenRouter से कोई टेक्स्ट जवाब नहीं मिला।");
     return reply;
   }
 
-  // सामान्य चैट
-  async function callClaudeDirect(message) {
+  async function callOpenRouterDirect(message) {
     const messages = [...chatHistory, { role: "user", content: message }];
-    const reply = await claudeRequest(messages);
+    const reply = await openrouterRequest(messages);
     chatHistory.push(
       { role: "user", content: message },
       { role: "assistant", content: reply }
@@ -266,7 +267,6 @@
     return reply;
   }
 
-  // Render backend (Playwright ब्राउज़र एजेंट) को टास्क भेजना
   async function callBrowserBackend(task, url, isFollowup) {
     const response = await fetch(
       RENDER_BACKEND_URL.replace(/\/$/, "") + "/api/chat",
@@ -289,22 +289,21 @@
     return data.reply;
   }
 
-  // काम करवाना: पेज → Claude → Render → Claude → पेज → यूज़र
   async function callBrowserFlow(message, url, answerCol) {
-    setProgress(answerCol, "① आपका संदेश Claude को भेजा जा रहा है…");
+    setProgress(answerCol, "① आपका संदेश OpenRouter को भेजा जा रहा है…");
     let plannerInput = `वेबसाइट: ${url}\nयूज़र का निर्देश: ${message}`;
     if (awaiting) {
       plannerInput =
         `पिछली बार एजेंट ने यूज़र से यह पूछा था: ${awaiting.question}\n` +
         `यूज़र का जवाब: ${message}\nवेबसाइट: ${url}`;
     }
-    const task = await claudeRequest([{ role: "user", content: plannerInput }], PLANNER_SYSTEM, 1024);
+    const task = await openrouterRequest([{ role: "user", content: plannerInput }], PLANNER_SYSTEM, 1024);
 
     setProgress(answerCol, "② टास्क ब्राउज़र एजेंट को भेजा गया, काम चल रहा है…");
     const agentReply = await callBrowserBackend(task, url, !!awaiting);
 
     setProgress(answerCol, "③ जवाब जाँचा जा रहा है…");
-    const verdictRaw = await claudeRequest(
+    const verdictRaw = await openrouterRequest(
       [{ role: "user", content: `ब्राउज़र एजेंट का जवाब:\n"""\n${agentReply}\n"""` }],
       JUDGE_SYSTEM,
       1024
@@ -336,7 +335,6 @@
       return;
     }
 
-    // URL सिर्फ़ "काम करवाना" मोड में चाहिए
     if (selectedMode === "browser") {
       try {
         const parsedUrl = new URL(url);
@@ -357,7 +355,7 @@
 
     try {
       const reply = selectedMode === "chat"
-        ? await callClaudeDirect(message)
+        ? await callOpenRouterDirect(message)
         : await callBrowserFlow(message, url, answerCol);
 
       fillAnswer(answerCol, reply);
