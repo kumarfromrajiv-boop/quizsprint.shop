@@ -59,12 +59,12 @@
     <main>
       <label for="mode">आप क्या करना चाहते हैं?</label>
       <select id="mode">
-        <option value="chat">Claude से सामान्य चैट (Direct API)</option>
-        <option value="browser">वेबसाइट पर काम करवाना (Claude → Render)</option>
+        <option value="chat">सामान्य चैट (Direct API)</option>
+        <option value="browser">एआई से काम करवाओ (Browser Mode)</option>
       </select>
 
       <div id="websiteFields" hidden>
-        <label for="website">वेबसाइट का URL</label>
+        <label for="website">वेबसाइट का URL (कौन सी वेबसाइट पर काम करना है?)</label>
         <input id="website" type="url" placeholder="https://example.com">
         <p class="status">केवल उसी वेबसाइट पर काम करें जिसे खोलने की अनुमति आपके पास है।</p>
 
@@ -79,8 +79,8 @@
         <p class="status">इस फ़ाइल को सार्वजनिक GitHub या वेबसाइट पर न डालें।</p>
       </div>
 
-      <label for="message">अपना निर्देश लिखें</label>
-      <textarea id="message" placeholder="उदाहरण: भारत की राजधानी क्या है?"></textarea>
+      <label for="message">अपना निर्देश लिखें (क्या काम करवाना है या क्या पूछना है?)</label>
+      <textarea id="message" placeholder="उदाहरण: भारत की राजधानी क्या है? या वेबसाइट पर जाकर डेटा निकालो..."></textarea>
       <button class="send" id="sendButton">भेजें</button>
       <div class="status" id="status"></div>
     </main>
@@ -88,10 +88,9 @@
     <details>
       <summary>यह सिस्टम कैसे काम करता है?</summary>
       <p>
-        <b>सामान्य चैट:</b> यह पेज Claude API को सीधे अनुरोध भेजता है और जवाब दिखाता है।<br><br>
-        <b>Browser Mode:</b> आपका निर्देश पहले Claude के पास जाता है। Claude उसे टास्क बनाकर Render के Playwright ब्राउज़र को भेजता है।
-        अगर Render को कोई जानकारी चाहिए, तो वह Claude को बताता है, Claude पेज को बताता है, और पेज आपसे पूछता है।
-        आपका जवाब वापस उसी रास्ते से Render तक जाता है।
+        <b>सामान्य चैट:</b> यह पेज Claude API को सीधे अनुरोध भेजता है और तुरंत जवाब दिखाता है।<br><br>
+        <b>एआई से काम करवाओ:</b> आपका निर्देश और URL पहले Claude के पास जाता है। Claude उसे टास्क बनाकर Render के Playwright ब्राउज़र को भेजता है।
+        काम पूरा होने के बाद रिपोर्ट आपको अगले पेज पर दिखाई देती है।
       </p>
     </details>
 
@@ -105,8 +104,8 @@
         <div class="status" id="resultStatus"></div>
       </div>
       <div class="columns-head">
-        <div>Claude का जवाब</div>
-        <div>आपका संदेश</div>
+        <div>Claude / एजेंट का जवाब (क्या हुआ / क्या नहीं हुआ)</div>
+        <div>आपका संदेश / URL</div>
       </div>
       <section id="pairs" aria-live="polite"></section>
     </main>
@@ -119,12 +118,11 @@
 </div>
 
 <script>
-  const RENDER_BACKEND_URL =[https://quizsprint-shop.onrender.com]
+  const RENDER_BACKEND_URL = "https://quizsprint-shop.onrender.com";
   const CLAUDE_API_URL = "https://api.anthropic.com/v1/messages";
   const CLAUDE_MODEL = "claude-sonnet-4-20250514";
   const CLAUDE_API_KEY = "sk-live-9b51a31723bd2d12edaeb375e5f78a1de1e38fcef85e9d8dd2d257d7864ba339";
 
-  // Claude को दिए जाने वाले निर्देश (Browser Mode के लिए)
   const PLANNER_SYSTEM =
     "तुम एक कोऑर्डिनेटर हो। यूज़र का निर्देश एक ब्राउज़र एजेंट (Playwright, Render पर) को भेजा जाएगा। " +
     "उसे साफ़, क्रमवार टास्क में बदलो। सिर्फ़ टास्क का टेक्स्ट लिखो, और कुछ नहीं। " +
@@ -139,7 +137,7 @@
     "(जैसे लॉगिन, OTP, पासवर्ड, कोई विकल्प)? " +
     "सिर्फ़ JSON दो, और कुछ नहीं: " +
     '{"type":"need_input" या "done","message":"यूज़र के लिए हिंदी में साफ़ संदेश"}। ' +
-    "need_input में message वही सवाल हो जो यूज़र से पूछना है। done में message काम का नतीजा संक्षेप में हो।";
+    "need_input में message वही सवाल हो जो यूज़र से पूछना है। done में message काम का नतीजा संक्षेप में हो कि क्या-क्या हुआ और क्या नहीं हुआ।";
 
   const $ = id => document.getElementById(id);
   const mode = $("mode");
@@ -160,7 +158,7 @@
 
   const sessionId = crypto.randomUUID();
   const chatHistory = [];
-  let awaiting = null; // अगर Render ने यूज़र से कुछ पूछा है: { question, url }
+  let awaiting = null;
 
   mode.addEventListener("change", () => {
     websiteFields.hidden = mode.value !== "browser";
@@ -191,13 +189,13 @@
     history.replaceState(null, "", location.pathname + location.search);
   }
 
-  function addPair(userText) {
+  function addPair(userText, websiteUrl) {
     const pair = document.createElement("div");
     pair.className = "pair";
 
     const userCol = document.createElement("div");
     userCol.className = "col user";
-    userCol.textContent = userText;
+    userCol.textContent = websiteUrl ? `वेबसाइट: ${websiteUrl}\n\nनिर्देश: ${userText}` : userText;
 
     const answerCol = document.createElement("div");
     answerCol.className = "col assistant waiting";
@@ -233,7 +231,6 @@
     }
   }
 
-  // Claude API को एक अनुरोध भेजना
   async function claudeRequest(messages, system, maxTokens = 2048) {
     const apiKey = apiKeyInput.value.trim() || CLAUDE_API_KEY;
     if (!apiKey) throw new Error("पहले Claude API Key डालें।");
@@ -264,7 +261,6 @@
     return reply;
   }
 
-  // सामान्य चैट
   async function callClaudeDirect(message) {
     const messages = [...chatHistory, { role: "user", content: message }];
     const reply = await claudeRequest(messages);
@@ -275,7 +271,6 @@
     return reply;
   }
 
-  // Render backend (Playwright ब्राउज़र एजेंट) को टास्क भेजना
   async function callBrowserBackend(task, url, isFollowup) {
     const headers = { "Content-Type": "application/json" };
     const backendKey = backendKeyInput.value.trim();
@@ -302,10 +297,8 @@
     return data.reply;
   }
 
-  // Browser Mode: GitHub पेज → Claude → Render → Claude → पेज → यूज़र
   async function callBrowserFlow(message, url, answerCol) {
-    // 1) पेज → Claude: टास्क बनवाना
-    setProgress(answerCol, "① आपका संदेश Claude को भेजा जा रहा है…");
+    setProgress(answerCol, "① आपका निर्देश Claude को भेजा जा रहा है…");
     let plannerInput = `वेबसाइट: ${url}\nयूज़र का निर्देश: ${message}`;
     if (awaiting) {
       plannerInput =
@@ -314,11 +307,9 @@
     }
     const task = await claudeRequest([{ role: "user", content: plannerInput }], PLANNER_SYSTEM, 1024);
 
-    // 2) Claude → Render
-    setProgress(answerCol, "② Claude ने टास्क Render के ब्राउज़र एजेंट को भेजा, काम चल रहा है…");
+    setProgress(answerCol, "② Claude ने टास्क Render के ब्राउज़र एजेंट को भेजा, वेबसाइट पर काम चल रहा है…");
     const agentReply = await callBrowserBackend(task, url, !!awaiting);
 
-    // 3) Render का जवाब → Claude जाँचता है
     setProgress(answerCol, "③ Render का जवाब Claude जाँच रहा है…");
     const verdictRaw = await claudeRequest(
       [{ role: "user", content: `ब्राउज़र एजेंट का जवाब:\n"""\n${agentReply}\n"""` }],
@@ -327,7 +318,6 @@
     );
     const verdict = parseJson(verdictRaw) || { type: "done", message: verdictRaw };
 
-    // 4) अगर जानकारी चाहिए तो यूज़र से पूछना
     if (verdict.type === "need_input") {
       awaiting = { question: verdict.message, url };
       return "🔔 ब्राउज़र एजेंट को आगे बढ़ने के लिए आपकी जानकारी चाहिए:\n\n" +
@@ -347,7 +337,7 @@
     const url = websiteInput.value.trim() || (awaiting ? awaiting.url : "");
 
     if (!message) {
-      errorBox.textContent = "पहले अपना निर्देश लिखें।";
+      errorBox.textContent = "पहले अपना संदेश या निर्देश लिखें।";
       return;
     }
 
@@ -362,9 +352,11 @@
     }
 
     errorBox.textContent = "";
-    const answerCol = addPair(message);
+    
+    // तुरंत रिजल्ट पेज पर जाएं
+    goToResult();
+    const answerCol = addPair(message, selectedMode === "browser" ? url : "");
 
-    if (source === "form") goToResult();
     input.value = "";
     setSending(true);
     resultStatus.textContent = "जवाब तैयार हो रहा है…";
@@ -375,7 +367,7 @@
         : await callBrowserFlow(message, url, answerCol);
 
       fillAnswer(answerCol, reply);
-      resultStatus.textContent = awaiting ? "आपके जवाब का इंतज़ार है।" : "जवाब मिल गया।";
+      resultStatus.textContent = awaiting ? "आपके जवाब का इंतज़ार है।" : "काम पूरा हो गया।";
     } catch (error) {
       fillAnswer(answerCol, "त्रुटि: " + error.message, true);
       resultStatus.textContent = "अनुरोध पूरा नहीं हुआ।";
@@ -404,3 +396,4 @@
 </script>
 </body>
 </html>
+ 
