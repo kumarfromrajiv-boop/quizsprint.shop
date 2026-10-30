@@ -148,26 +148,38 @@
       messageInput.placeholder = "यहाँ कुछ भी लिखें…";
     }
   }
-  mode.addEventListener("change", updateMode);
-  updateMode();
+mode.addEventListener("change", updateMode);
+updateMode();
 
-  function showPage(name) {
-    const result = name === "result";
-    pageForm.hidden = result;
-    pageResult.hidden = !result;
-    window.scrollTo({ top: 0 });
+function showPage(name) {
+  const result = name === "result";
+  pageForm.hidden = result;
+  pageResult.hidden = !result;
+  window.scrollTo({ top: 0 });
+}
+
+function goToResult() {
+  showPage("result");
+  try {
+    if (location.hash !== "#result") history.pushState(null, "", "#result");
+  } catch (e) {}
+}
+
+function goToForm() {
+  if (location.hash === "#result") {
+    try { history.back(); } catch (e) { showPage("form"); }
+  } else {
+    showPage("form");
   }
+}
 
-  function goToResult() {
-    showPage("result");
-    try {
-      if (location.hash !== "#result") history.pushState(null, "", "#result");
-    } catch (e) {}
-  }
+// तुरंत नेक्स्ट पेज पर भेजने और जवाब आने तक इंतज़ार/लोडिंग दिखाने का मुख्य हैंडलर
+function handleInstantSend(messageText, answerCol) {
+  goToResult(); // तुरंत नेक्स्ट पेज पर ले जाएगा
+  resultStatus.textContent = "जवाब आ रहा है…";
+  answerCol.textContent = "जवाब का इंतज़ार हो रहा है…";
+}
 
-  function goToForm() {
-    if (location.hash === "#result") {
-      try { history.back(); } catch (e) { showPage("form"); }
     } else {
       showPage("form");
     }
