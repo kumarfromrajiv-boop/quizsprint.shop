@@ -125,31 +125,46 @@
       messageLabel.textContent = "अपना संदेश लिखें";
       messageInput.placeholder = "यहाँ कुछ भी लिखें…";
     }
-  }
-
-  mode.addEventListener("change", updateMode);
-  updateMode();
-
-  function showPage(name) {
+  
+Function showPage(name) {
     const result = name === "result";
     pageForm.hidden = result;
     pageResult.hidden = !result;
     window.scrollTo({ top: 0 });
   }
 
-    errorBox.textContent = "";
+  function goToResult() {
+    showPage("result");
+    try {
+      if (location.hash !== "#result") history.pushState(null, "", "#result");
+    } catch (e) {}
+  }
 
-    // सबसे पहले तुरंत नया पेज खोलें ताकि बटन कभी न अटके
-    if (source === "form") {
-      goToResult();
+  function goToForm() {
+    if (location.hash === "#result") {
+      try { history.back(); } catch (e) { showPage("form"); }
+    } else {
+      showPage("form");
     }
+  }
 
-    const answerCol = addPair(message);
-    input.value = "";
-    setSending(true);
-    resultStatus.textContent = "Render सर्वर से प्रक्रिया जारी है…";
-  
+  function addPair(userText) {
+    const pair = document.createElement("div");
+    pair.className = "pair";
 
+    const userCol = document.createElement("div");
+    userCol.className = "col user";
+    userCol.textContent = userText;
+
+    const answerCol = document.createElement("div");
+    answerCol.className = "col assistant waiting";
+    answerCol.textContent = "जवाब का इंतज़ार हो रहा है…";
+
+    pair.append(userCol, answerCol);
+    pairs.appendChild(pair);
+    pair.scrollIntoView({ behavior: "smooth", block: "end" });
+    return answerCol;
+  }
   function goToForm() {
     if (location.hash === "#result") {
       try { history.back(); } catch (e) { showPage("form"); }
