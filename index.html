@@ -92,7 +92,7 @@
 
 <script>
   // Render सर्वर URL (सुरक्षित बैकएंड)
-  const RENDER_BACKEND_URL ="https://quizsprint-shop-1.onrender.com"
+  const RENDER_BACKEND_URL = "https://quizsprint-shop-1.onrender.com";
   const $ = id => document.getElementById(id);
   const mode = $("mode");
   const websiteFields = $("websiteFields");
@@ -115,13 +115,6 @@
   
   let awaiting = null;
 
-  [function updateMode() {
-    if (mode.value === "browser") {
-      websiteFields.hidden = false;
-      messageLabel.textContent = "AI से क्या काम करवाना है?";
-      messageInput.placeholder = "उदाहरण: इस वेबसाइट पर जाकर सबसे सस्ता प्रोडक्ट ढूँढो";
-    } else {
-      websiteFields.hidden = true;
   function updateMode() {
     if (mode.value === "browser") {
       websiteFields.hidden = false;
@@ -176,24 +169,6 @@
     pair.scrollIntoView({ behavior: "smooth", block: "end" });
     return answerCol;
   }
-      
-  function addPair(userText) {
-    const pair = document.createElement("div");
-    pair.className = "pair";
-
-    const userCol = document.createElement("div");
-    userCol.className = "col user";
-    userCol.textContent = userText;
-
-    const answerCol = document.createElement("div");
-    answerCol.className = "col assistant waiting";
-    answerCol.textContent = "जवाब का इंतज़ार हो रहा है…";
-
-    pair.append(userCol, answerCol);
-    pairs.appendChild(pair);
-    pair.scrollIntoView({ behavior: "smooth", block: "end" });
-    return answerCol;
-  }
 
   function fillAnswer(element, text, isError = false) {
     element.classList.remove("waiting");
@@ -206,8 +181,6 @@
     replyButton.disabled = sending;
   }
 
-  // पूरा प्रोसेस Render Backend संभालेगा:
-  // GitHub Pages (Mobile) -> Render Server -> OpenRouter & Automation -> Render Server -> GitHub Pages (Mobile)
   async function sendToRenderBackend(selectedMode, message, url) {
     const response = await fetch(
       RENDER_BACKEND_URL.replace(/\/$/, "") + "/api/chat",
@@ -228,7 +201,6 @@
     if (!response.ok) throw new Error(data.detail || data.error || `Render server error: ${response.status}`);
     if (!data.reply) throw new Error("Render सर्वर से कोई जवाब नहीं मिला।");
 
-    // अगर Render सर्वर बताता है कि ब्राउज़र ऑटोमेशन के लिए यूज़र इनपुट (जैसे OTP/पासवर्ड) चाहिए
     if (data.type === "need_input") {
       awaiting = { question: data.reply, url };
       return "🔔 आगे बढ़ने के लिए आपकी जानकारी चाहिए:\n\n" + data.reply + "\n\n(अपना जवाब नीचे के बॉक्स में लिखकर भेजिए।)";
@@ -263,15 +235,17 @@
     }
 
     errorBox.textContent = "";
-    const answerCol = addPair(message);
 
-    if (source === "form") goToResult();
+    if (source === "form") {
+      goToResult();
+    }
+
+    const answerCol = addPair(message);
     input.value = "";
     setSending(true);
     resultStatus.textContent = "Render सर्वर से प्रक्रिया जारी है…";
 
     try {
-      // सारी रिक्वेस्ट सीधे Render Server को भेजी जाती है
       const reply = await sendToRenderBackend(selectedMode, message, url);
 
       fillAnswer(answerCol, reply);
