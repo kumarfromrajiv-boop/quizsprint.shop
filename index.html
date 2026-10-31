@@ -122,11 +122,22 @@
       messageInput.placeholder = "उदाहरण: इस वेबसाइट पर जाकर सबसे सस्ता प्रोडक्ट ढूँढो";
     } else {
       websiteFields.hidden = true;
+  function updateMode() {
+    if (mode.value === "browser") {
+      websiteFields.hidden = false;
+      messageLabel.textContent = "AI से क्या काम करवाना है?";
+      messageInput.placeholder = "उदाहरण: इस वेबसाइट पर जाकर सबसे सस्ता प्रोडक्ट ढूँढो";
+    } else {
+      websiteFields.hidden = true;
       messageLabel.textContent = "अपना संदेश लिखें";
       messageInput.placeholder = "यहाँ कुछ भी लिखें…";
     }
-  
-Function showPage(name) {
+  }
+
+  mode.addEventListener("change", updateMode);
+  updateMode();
+
+  function showPage(name) {
     const result = name === "result";
     pageForm.hidden = result;
     pageResult.hidden = !result;
@@ -165,14 +176,7 @@ Function showPage(name) {
     pair.scrollIntoView({ behavior: "smooth", block: "end" });
     return answerCol;
   }
-  function goToForm() {
-    if (location.hash === "#result") {
-      try { history.back(); } catch (e) { showPage("form"); }
-    } else {
-      showPage("form");
-    }
-  }
-
+      
   function addPair(userText) {
     const pair = document.createElement("div");
     pair.className = "pair";
