@@ -147,10 +147,7 @@
       messageInput.placeholder = "यहाँ कुछ भी लिखें…";
     }
   }
-mode.addEventListener("change", updateMode);
-updateMode();
-
-function showPage(name) {
+Function showPage(name) {
   const result = name === "result";
   pageForm.hidden = result;
   pageResult.hidden = !result;
@@ -178,26 +175,6 @@ function handleInstantSend(messageText, answerCol) {
   resultStatus.textContent = "जवाब आ रहा है…";
   answerCol.textContent = "जवाब का इंतज़ार हो रहा है…";
 }
-
-    } else {
-      showPage("form");
-    }
-  }
-
-  window.addEventListener("popstate", () => {
-    showPage(location.hash === "#result" && pairs.children.length ? "result" : "form");
-  });
-
-  try {
-    if (location.hash === "#result") {
-      history.replaceState(null, "", location.pathname + location.search);
-    }
-  } catch (e) {}
-
-  function addPair(userText) {
-    const pair = document.createElement("div");
-    pair.className = "pair";
-
     const userCol = document.createElement("div");
     userCol.className = "col user";
     userCol.textContent = userText;
