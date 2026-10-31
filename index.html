@@ -137,12 +137,18 @@
     window.scrollTo({ top: 0 });
   }
 
-  function goToResult() {
-    showPage("result");
-    try {
-      if (location.hash !== "#result") history.pushState(null, "", "#result");
-    } catch (e) {}
-  }
+    errorBox.textContent = "";
+
+    // सबसे पहले तुरंत नया पेज खोलें ताकि बटन कभी न अटके
+    if (source === "form") {
+      goToResult();
+    }
+
+    const answerCol = addPair(message);
+    input.value = "";
+    setSending(true);
+    resultStatus.textContent = "Render सर्वर से प्रक्रिया जारी है…";
+  
 
   function goToForm() {
     if (location.hash === "#result") {
