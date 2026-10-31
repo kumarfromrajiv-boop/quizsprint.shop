@@ -1,4 +1,4 @@
-  <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="hi">
 <head>
   <meta charset="UTF-8">
@@ -91,12 +91,12 @@
 </div>
 
 <script>
-  const RENDER_BACKEND_URL = "https://quizsprint-shop.onrender.com"
+  const RENDER_BACKEND_URL = "https://quizsprint-shop.onrender.com";
   
-  // यहाँ OpenRouter के सही URL और मॉडल दिए गए हैं
-  const OPENROUTER_API_URL = "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"
+  // सही OpenRouter API URL और API Key
+  const OPENROUTER_API_URL = "https://openrouter.ai/api/v1/chat/completions";
+  const OPENROUTER_API_KEY = "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";
   const OPENROUTER_MODEL = "anthropic/claude-3.5-sonnet"; 
-  // यहाँ अपनी असली aicredits.in वाली ओपनराउटर की (API Key) डालें
 
   const PLANNER_SYSTEM =
     "तुम एक कोऑर्डिनेटर हो। यूज़र का निर्देश एक ब्राउज़र एजेंट (Playwright, Render पर) को भेजा जाएगा। " +
@@ -147,34 +147,36 @@
       messageInput.placeholder = "यहाँ कुछ भी लिखें…";
     }
   }
-Function showPage(name) {
-  const result = name === "result";
-  pageForm.hidden = result;
-  pageResult.hidden = !result;
-  window.scrollTo({ top: 0 });
-}
 
-function goToResult() {
-  showPage("result");
-  try {
-    if (location.hash !== "#result") history.pushState(null, "", "#result");
-  } catch (e) {}
-}
+  mode.addEventListener("change", updateMode);
+  updateMode();
 
-function goToForm() {
-  if (location.hash === "#result") {
-    try { history.back(); } catch (e) { showPage("form"); }
-  } else {
-    showPage("form");
+  function showPage(name) {
+    const result = name === "result";
+    pageForm.hidden = result;
+    pageResult.hidden = !result;
+    window.scrollTo({ top: 0 });
   }
-}
 
-// तुरंत नेक्स्ट पेज पर भेजने और जवाब आने तक इंतज़ार/लोडिंग दिखाने का मुख्य हैंडलर
-function handleInstantSend(messageText, answerCol) {
-  goToResult(); // तुरंत नेक्स्ट पेज पर ले जाएगा
-  resultStatus.textContent = "जवाब आ रहा है…";
-  answerCol.textContent = "जवाब का इंतज़ार हो रहा है…";
-}
+  function goToResult() {
+    showPage("result");
+    try {
+      if (location.hash !== "#result") history.pushState(null, "", "#result");
+    } catch (e) {}
+  }
+
+  function goToForm() {
+    if (location.hash === "#result") {
+      try { history.back(); } catch (e) { showPage("form"); }
+    } else {
+      showPage("form");
+    }
+  }
+
+  function addPair(userText) {
+    const pair = document.createElement("div");
+    pair.className = "pair";
+
     const userCol = document.createElement("div");
     userCol.className = "col user";
     userCol.textContent = userText;
@@ -213,7 +215,6 @@ function handleInstantSend(messageText, answerCol) {
     }
   }
 
-  // OpenRouter के लिए सही और सटीक API रिक्वेस्ट फंक्शन
   async function openrouterRequest(messages, system, maxTokens = 2048) {
     let formattedMessages = [...messages];
     if (system) {
