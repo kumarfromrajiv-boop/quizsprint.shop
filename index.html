@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="hi">
 <head>
@@ -34,6 +35,7 @@
     .col.waiting { color: #777; font-style: italic; }
     .reply-bar { position: sticky; bottom: 0; background: #fff; border-top: 1px solid #eee; padding: 12px 18px; display: flex; gap: 10px; align-items: flex-end; }
     .reply-bar textarea { min-height: 48px; height: 48px; resize: vertical; }
+
     @media (max-width: 640px) {
       .columns-head { display: none; }
       .pair { grid-template-columns: 1fr; gap: 8px; }
@@ -43,12 +45,15 @@
     }
   </style>
 </head>
+
 <body>
 <div class="app">
+
   <header>✳ AI Studio — OpenRouter AI</header>
 
   <div id="pageForm">
     <main>
+
       <label for="mode">आप क्या करना चाहते हैं?</label>
       <select id="mode">
         <option value="chat">AI से सामान्य चैट</option>
@@ -63,24 +68,29 @@
 
       <label for="message" id="messageLabel">अपना संदेश लिखें</label>
       <textarea id="message" placeholder="यहाँ कुछ भी लिखें…"></textarea>
+
       <button class="send" id="sendButton">भेजें</button>
       <div class="status" id="status"></div>
-    </main>
 
+    </main>
     <footer>AI Studio</footer>
   </div>
 
   <div id="pageResult" hidden>
     <main>
+
       <div class="result-top">
         <button class="back-btn" id="backButton">← वापस जाएँ</button>
         <div class="status" id="resultStatus"></div>
       </div>
+
       <div class="columns-head">
         <div>OpenRouter का जवाब</div>
         <div>आपका संदेश</div>
       </div>
+
       <section id="pairs" aria-live="polite"></section>
+
     </main>
 
     <div class="reply-bar">
@@ -88,39 +98,53 @@
       <button id="replyButton">भेजें</button>
     </div>
   </div>
+
 </div>
 
 <script>
-  // Render सर्वर URL
-  const RENDER_BACKEND_URL = "https://quizsprint-shop-1.onrender.com";
+  // Render Backend URL
+  const RENDER_BACKEND_URL =
+    "https://quizsprint-shop-1.onrender.com";
 
   const $ = id => document.getElementById(id);
+
   const mode = $("mode");
   const websiteFields = $("websiteFields");
   const messageLabel = $("messageLabel");
+
   const sendButton = $("sendButton");
   const backButton = $("backButton");
   const replyButton = $("replyButton");
+
   const messageInput = $("message");
   const replyInput = $("replyInput");
   const websiteInput = $("website");
+
   const statusBox = $("status");
   const resultStatus = $("resultStatus");
+
   const pairs = $("pairs");
   const pageForm = $("pageForm");
   const pageResult = $("pageResult");
 
+  // Unique session ID
   const sessionId = (window.crypto && crypto.randomUUID)
     ? crypto.randomUUID()
-    : "s-" + Date.now() + "-" + Math.random().toString(36).slice(2);
-  
-  let awaiting = null;
+    : "s-" + Date.now() + "-" +
+      Math.random().toString(36).slice(2);
 
+  // Current task information
+  let awaiting = null;
+  let activeMode = "chat";
+  let activeUrl = "";
+
+  // Change mode UI
   function updateMode() {
     if (mode.value === "browser") {
       websiteFields.hidden = false;
       messageLabel.textContent = "AI से क्या काम करवाना है?";
-      messageInput.placeholder = "उदाहरण: इस वेबसाइट पर जाकर सबसे सस्ता प्रोडक्ट ढूँढो";
+      messageInput.placeholder =
+        "उदाहरण: इस वेबसाइट पर जाकर सबसे सस्ता प्रोडक्ट ढूँढो";
     } else {
       websiteFields.hidden = true;
       messageLabel.textContent = "अपना संदेश लिखें";
@@ -131,27 +155,37 @@
   mode.addEventListener("change", updateMode);
   updateMode();
 
+  // Page navigation
   function showPage(name) {
     const result = name === "result";
+
     pageForm.hidden = result;
     pageResult.hidden = !result;
+
     window.scrollTo({ top: 0 });
   }
 
   function goToResult() {
     showPage("result");
+
     try {
-      if (location.hash !== "#result") history.pushState(null, "", "#result");
+      if (location.hash !== "#result") {
+        history.pushState(null, "", "#result");
+      }
     } catch (e) {}
   }
 
   function goToForm() {
     showPage("form");
+
     try {
-      if (location.hash === "#result") history.back();
+      if (location.hash === "#result") {
+        history.back();
+      }
     } catch (e) {}
   }
 
+  // Add conversation pair
   function addPair(userText) {
     const pair = document.createElement("div");
     pair.className = "pair";
@@ -167,31 +201,57 @@
     pair.append(userCol, answerCol);
     pairs.appendChild(pair);
 
-    // ऑटो स्क्रॉल ताकि नया मैसेज और जवाब साफ़ दिखे
     setTimeout(() => {
-      pair.scrollIntoView({ behavior: "smooth", block: "end" });
+      pair.scrollIntoView({
+        behavior: "smooth",
+        block: "end"
+      });
     }, 50);
 
     return answerCol;
   }
 
+  // Display answer
   function fillAnswer(element, text, isError = false) {
     element.classList.remove("waiting");
-    if (isError) element.classList.add("error");
+
+    if (isError) {
+      element.classList.add("error");
+    }
+
     element.textContent = text;
   }
 
+  // Button loading
   function setSending(sending) {
     sendButton.disabled = sending;
     replyButton.disabled = sending;
+
+    sendButton.textContent = sending
+      ? "प्रक्रिया जारी है…"
+      : "भेजें";
+
+    replyButton.textContent = sending
+      ? "रुकिए…"
+      : "भेजें";
   }
 
-  async function sendToRenderBackend(selectedMode, message, url) {
+  // Send request to Render server
+  async function sendToRenderBackend(
+    selectedMode,
+    message,
+    url
+  ) {
+
     const response = await fetch(
       RENDER_BACKEND_URL.replace(/\/$/, "") + "/api/chat",
       {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+
+        headers: {
+          "Content-Type": "application/json"
+        },
+
         body: JSON.stringify({
           mode: selectedMode,
           message: message,
@@ -203,72 +263,153 @@
     );
 
     const data = await response.json().catch(() => ({}));
-    if (!response.ok) throw new Error(data.detail || data.error || `Render server error: ${response.status}`);
-    if (!data.reply) throw new Error("Render सर्वर से कोई जवाब नहीं मिला।");
 
-    if (data.type === "need_input") {
-      awaiting = { question: data.reply, url };
-      return "🔔 आगे बढ़ने के लिए आपकी जानकारी चाहिए:\n\n" + data.reply + "\n\n(अपना जवाब नीचे के बॉक्स में लिखकर भेजिए।)";
+    if (!response.ok) {
+      throw new Error(
+        data.detail ||
+        data.error ||
+        `Render server error: ${response.status}`
+      );
     }
 
+    if (typeof data.reply !== "string" || !data.reply.trim()) {
+      throw new Error("Render सर्वर से कोई जवाब नहीं मिला।");
+    }
+
+    // Server needs additional information
+    if (data.type === "need_input") {
+      awaiting = {
+        question: data.reply,
+        url: url,
+        mode: selectedMode
+      };
+
+      return (
+        "🔔 आगे बढ़ने के लिए आपकी जानकारी चाहिए:\n\n" +
+        data.reply +
+        "\n\nअपना जवाब नीचे के बॉक्स में लिखकर भेजिए।"
+      );
+    }
+
+    // Task completed
     awaiting = null;
+
     return data.reply;
   }
 
+  // Main message function
   async function sendMessage(source) {
-    const input = source === "form" ? messageInput : replyInput;
-    const errorBox = source === "form" ? statusBox : resultStatus;
+
+    const input = source === "form"
+      ? messageInput
+      : replyInput;
+
+    const errorBox = source === "form"
+      ? statusBox
+      : resultStatus;
+
     const message = input.value.trim();
-    const selectedMode = mode.value;
-    const url = websiteInput.value.trim() || (awaiting ? awaiting.url : "");
 
     if (!message) {
-      errorBox.textContent = selectedMode === "browser"
-        ? "पहले लिखें कि AI से क्या काम करवाना है।"
-        : "पहले अपना संदेश लिखें।";
+      errorBox.textContent =
+        "पहले अपना संदेश लिखें।";
       return;
     }
 
-    if (selectedMode === "browser" && source === "form") {
+    // Keep the same mode and URL during follow-up
+    const selectedMode = awaiting
+      ? awaiting.mode
+      : (source === "result" ? activeMode : mode.value);
+
+    const url = awaiting
+      ? awaiting.url
+      : (source === "result" ? activeUrl : websiteInput.value.trim());
+
+    // Validate browser URL for a new browser task
+    if (
+      selectedMode === "browser" &&
+      !awaiting &&
+      source === "form"
+    ) {
       try {
         const parsedUrl = new URL(url);
-        if (!["http:", "https:"].includes(parsedUrl.protocol)) throw new Error();
-      } catch {
-        errorBox.textContent = "कृपया सही http:// या https:// वेबसाइट URL डालें।";
+
+        if (
+          !["http:", "https:"].includes(parsedUrl.protocol)
+        ) {
+          throw new Error();
+        }
+
+      } catch (e) {
+        errorBox.textContent =
+          "कृपया सही http:// या https:// वेबसाइट URL डालें।";
         return;
       }
     }
 
     errorBox.textContent = "";
 
-    // यदि पहले पेज से भेज रहे हैं, तो रिजल्ट पेज पर स्विच हो जाओ
+    // Save current task mode and URL
+    activeMode = selectedMode;
+    activeUrl = url;
+
     if (source === "form") {
       goToResult();
     }
 
     const answerCol = addPair(message);
+
     input.value = "";
+
     setSending(true);
-    resultStatus.textContent = "Render सर्वर से प्रक्रिया जारी है…";
+
+    resultStatus.textContent =
+      selectedMode === "browser"
+        ? "Render सर्वर Browser Mode का काम कर रहा है…"
+        : "Render सर्वर से जवाब प्राप्त हो रहा है…";
 
     try {
-      const reply = await sendToRenderBackend(selectedMode, message, url);
+
+      const reply = await sendToRenderBackend(
+        selectedMode,
+        message,
+        url
+      );
 
       fillAnswer(answerCol, reply);
-      resultStatus.textContent = awaiting ? "आपके जवाब का इंतज़ार है।" : "जवाब मिल गया।";
+
+      resultStatus.textContent = awaiting
+        ? "आपके जवाब का इंतज़ार है।"
+        : "जवाब मिल गया।";
+
     } catch (error) {
-      fillAnswer(answerCol, "त्रुटि: " + error.message, true);
-      resultStatus.textContent = "अनुरोध पूरा नहीं हुआ।";
+
+      fillAnswer(
+        answerCol,
+        "त्रुटि: " + error.message,
+        true
+      );
+
+      resultStatus.textContent =
+        "अनुरोध पूरा नहीं हुआ।";
+
     } finally {
       setSending(false);
     }
   }
 
-  // Event Listeners
-  sendButton.addEventListener("click", () => sendMessage("form"));
-  replyButton.addEventListener("click", () => sendMessage("result"));
+  // Button events
+  sendButton.addEventListener("click", () => {
+    sendMessage("form");
+  });
+
+  replyButton.addEventListener("click", () => {
+    sendMessage("result");
+  });
+
   backButton.addEventListener("click", goToForm);
 
+  // Enter to send
   messageInput.addEventListener("keydown", event => {
     if (event.key === "Enter" && !event.shiftKey) {
       event.preventDefault();
@@ -282,6 +423,7 @@
       sendMessage("result");
     }
   });
+
 </script>
 </body>
 </html>
