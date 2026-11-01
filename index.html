@@ -91,8 +91,8 @@
 </div>
 
 <script>
-  // Render सर्वर URL (सुरक्षित बैकएंड)
-const RENDER_BACKEND_URL = "https://quizsprint-shop-1.onrender.com";
+  // Render सर्वर URL
+  const RENDER_BACKEND_URL = "https://quizsprint-shop-1.onrender.com";
 
   const $ = id => document.getElementById(id);
   const mode = $("mode");
@@ -146,11 +146,10 @@ const RENDER_BACKEND_URL = "https://quizsprint-shop-1.onrender.com";
   }
 
   function goToForm() {
-    if (location.hash === "#result") {
-      try { history.back(); } catch (e) { showPage("form"); }
-    } else {
-      showPage("form");
-    }
+    showPage("form");
+    try {
+      if (location.hash === "#result") history.back();
+    } catch (e) {}
   }
 
   function addPair(userText) {
@@ -167,7 +166,12 @@ const RENDER_BACKEND_URL = "https://quizsprint-shop-1.onrender.com";
 
     pair.append(userCol, answerCol);
     pairs.appendChild(pair);
-    pair.scrollIntoView({ behavior: "smooth", block: "end" });
+
+    // ऑटो स्क्रॉल ताकि नया मैसेज और जवाब साफ़ दिखे
+    setTimeout(() => {
+      pair.scrollIntoView({ behavior: "smooth", block: "end" });
+    }, 50);
+
     return answerCol;
   }
 
@@ -225,7 +229,7 @@ const RENDER_BACKEND_URL = "https://quizsprint-shop-1.onrender.com";
       return;
     }
 
-    if (selectedMode === "browser") {
+    if (selectedMode === "browser" && source === "form") {
       try {
         const parsedUrl = new URL(url);
         if (!["http:", "https:"].includes(parsedUrl.protocol)) throw new Error();
@@ -237,6 +241,7 @@ const RENDER_BACKEND_URL = "https://quizsprint-shop-1.onrender.com";
 
     errorBox.textContent = "";
 
+    // यदि पहले पेज से भेज रहे हैं, तो रिजल्ट पेज पर स्विच हो जाओ
     if (source === "form") {
       goToResult();
     }
@@ -259,6 +264,7 @@ const RENDER_BACKEND_URL = "https://quizsprint-shop-1.onrender.com";
     }
   }
 
+  // Event Listeners
   sendButton.addEventListener("click", () => sendMessage("form"));
   replyButton.addEventListener("click", () => sendMessage("result"));
   backButton.addEventListener("click", goToForm);
