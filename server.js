@@ -1,150 +1,276 @@
 const http = require("http");
 
 const PORT = process.env.PORT || 3000;
+const API_KEY = process.env.OPENROUTER_API_KEY;
+const BROWSER_URL = process.env.PLAYWRIGHT_SERVER_URL;
+const SHARED_SECRET = process.env.BROWSER_SHARED_SECRET;
+
+const MODEL = process.env.OPENROUTER_MODEL || "openai/gpt-4o-mini";
+
+function send(res, status, data) {
+res.writeHead(status, {
+"Content-Type": "application/json; charset=utf-8",
+"Access-Control-Allow-Origin": "*",
+"Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+"Access-Control-Allow-Headers": "Content-Type"
+});
+
+res.end(JSON.stringify(data));
+}
+
+async function readBody(req) {
+let body = "";
+
+for await (const chunk of req) {
+body += chunk;
+
+if (body.length > 1000000) {  
+  throw new Error("Request too large");  
+}
+
+}
+
+return JSON.parse(body);
+}
+
+// OpenRouter AI
+async function askAI(messages) {
+if (!API_KEY) {
+throw new Error("OPENROUTER_API_KEY सेट नहीं है।");
+}
+
+const response = await fetch(
+"https://openrouter.ai/api/v1/chat/completions",
+{
+method: "POST",
+headers: {
+"Authorization": "Bearer " + API_KEY,
+"Content-Type": "application/json",
+"HTTP-Referer": "https://quizsprint-shop-2.onrender.com",
+"X-Title": "AI Studio"
+},
+body: JSON.stringify({
+model: MODEL,
+messages,
+temperature: 0.2
+})
+}
+);
+
+const result = await response.json();
+
+if (!response.ok) {
+throw new Error(
+result.error?.message || "OpenRouter API Error"
+);
+}
+
+const reply = result.choices?.[0]?.message?.content;
+
+if (!reply) {
+throw new Error("AI से जवाब प्राप्त नहीं हुआ।");
+}
+
+return reply;
+}
+
+// Playwright दूसरे Server से कनेक्शन
+async function runBrowser(url, task, steps) {
+if (!BROWSER_URL || !SHARED_SECRET) {
+throw new Error("Playwright Server की सेटिंग पूरी नहीं है।");
+}
+
+const response = await fetch(
+BROWSER_URL.replace(//$/, "") + "/api/run",
+{
+method: "POST",
+headers: {
+"Content-Type": "application/json",
+"Authorization": "Bearer " + SHARED_SECRET
+},
+body: JSON.stringify({
+url,
+task,
+steps
+})
+}
+);
+
+const result = await response.json();
+
+if (!response.ok) {
+throw new Error(
+result.error || "Browser Server Error"
+);
+}
+
+return result;
+}
 
 const server = http.createServer(async (req, res) => {
 
-  // CORS settings
-  res.setHeader("Access-Control-Allow-Origin", "*");
-  res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
-  res.setHeader("Access-Control-Allow-Headers", "Content-Type");
+// CORS settings
+if (req.method === "OPTIONS") {
+res.writeHead(204, {
+"Access-Control-Allow-Origin": "*",
+"Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+"Access-Control-Allow-Headers": "Content-Type"
+});
 
-  if (req.method === "OPTIONS") {
-    res.writeHead(204);
-    return res.end();
-  }
+return res.end();
 
-  res.setHeader("Content-Type", "application/json; charset=utf-8");
+}
 
-  // Health check
-  if (req.method === "GET" && req.url === "/") {
-    res.writeHead(200);
-    return res.end(JSON.stringify({
-      status: "online",
-      message: "OpenRouter AI Server is running"
-    }));
-  }
+// Health check
+if (req.method === "GET" && req.url === "/") {
+return send(res, 200, {
+status: "online",
+message: "OpenRouter AI Server is running"
+});
+}
 
-  // Chat API
-  if (req.method === "POST" && req.url === "/api/chat") {
+// Chat API
+if (req.method !== "POST" || req.url !== "/api/chat") {
+return send(res, 404, {
+error: "Route not found"
+});
+}
 
-    try {
-      let body = "";
+try {
+const data = await readBody(req);
 
-      for await (const chunk of req) {
-        body += chunk;
+const message = String(data.message || "").trim();  
+const mode = data.mode || "chat";  
+const url = String(data.url || "").trim();  
 
-        if (body.length > 1000000) {
-          throw new Error("Request too large");
-        }
-      }
+if (!message) {  
+  return send(res, 400, {  
+    error: "Message is required"  
+  });  
+}  
 
-      const data = JSON.parse(body);
+// सामान्य AI बातचीत  
+if (mode !== "browser") {  
+  const reply = await askAI([  
+    {  
+      role: "system",  
+      content:  
+        "You are a helpful AI assistant. Reply in the user's language. Be clear and useful."  
+    },  
+    {  
+      role: "user",  
+      content: message  
+    }  
+  ]);  
 
-      const message = data.message;
-      const mode = data.mode || "chat";
-      const url = data.url || "";
+  return send(res, 200, {  
+    type: "success",  
+    reply  
+  });  
+}  
 
-      if (!message || !message.trim()) {
-        res.writeHead(400);
-        return res.end(JSON.stringify({
-          error: "Message is required"
-        }));
-      }
+// Browser URL validation  
+let parsed;  
 
-      // Get API Key from Render Environment
-      const API_KEY = process.env.OPENROUTER_API_KEY;
+try {  
+  parsed = new URL(url);  
+} catch {  
+  return send(res, 400, {  
+    error: "सही वेबसाइट URL डालें।"  
+  });  
+}  
 
-      if (!API_KEY) {
-        res.writeHead(500);
-        return res.end(JSON.stringify({
-          error: "Render में OPENROUTER_API_KEY सेट नहीं है।"
-        }));
-      }
+if (!["http:", "https:"].includes(parsed.protocol)) {  
+  return send(res, 400, {  
+    error: "केवल HTTP और HTTPS वेबसाइट स्वीकार हैं।"  
+  });  
+}  
 
-      // AI instructions
-      let systemPrompt =
-        "You are a helpful AI assistant. Reply in the user's language. Be clear and useful.";
+// OpenRouter से Browser Action Plan  
+const planText = await askAI([  
+  {  
+    role: "system",  
+    content: `You create browser automation plans.
 
-      if (mode === "browser") {
-        systemPrompt =
-          "You are a website task assistant. You can explain how to perform tasks on websites, but you do not have direct browser access or the ability to click buttons, log in, or interact with websites. Never claim that you performed an action.";
-      }
+Return ONLY valid JSON in this format:
+{"steps":[{"action":"click","selector":"CSS selector"},{"action":"fill","selector":"CSS selector","value":"text"},{"action":"wait","ms":1000},{"action":"read"}]}
 
-      const userMessage = mode === "browser"
-        ? "Website URL: " + url + "\n\nTask: " + message
-        : message;
+Allowed actions: click, fill, wait, read.
+Do not include goto; the browser server opens the supplied URL.
+Never create steps for purchases, payments, deleting accounts/data,
+sending messages, submitting orders, or changing security settings.
+For those tasks, return {"steps":[],"message":"User confirmation or manual action required."}
+Use simple CSS selectors. Do not invent selectors when uncertain.`
+},
+{
+role: "user",
+content: "Website URL: " + url + "\nTask: " + message
+}
+]);
 
-      // OpenRouter API request
-      const response = await fetch(
-        "https://openrouter.ai/api/v1/chat/completions",
-        {
-          method: "POST",
-          headers: {
-            "Authorization": "Bearer " + API_KEY,
-            "Content-Type": "application/json",
-            "HTTP-Referer": "https://quizsprint-shop-2.onrender.com",
-            "X-Title": "AI Studio"
-          },
-          body: JSON.stringify({
-            model: "openai/gpt-4o-mini",
-            messages: [
-              {
-                role: "system",
-                content: systemPrompt
-              },
-              {
-                role: "user",
-                content: userMessage
-              }
-            ]
-          })
-        }
-      );
+let plan;  
 
-      const result = await response.json();
+try {  
+  plan = JSON.parse(planText);  
+} catch {  
+  throw new Error("OpenRouter ने सही Browser Plan नहीं दिया।");  
+}  
 
-      if (!response.ok) {
-        res.writeHead(response.status);
-        return res.end(JSON.stringify({
-          error: result.error?.message || "OpenRouter API Error"
-        }));
-      }
+if (!Array.isArray(plan.steps)) {  
+  throw new Error("Browser Plan में steps नहीं मिले।");  
+}  
 
-      const reply =
-        result.choices?.[0]?.message?.content;
+if (plan.steps.length === 0) {  
+  return send(res, 200, {  
+    type: "need_input",  
+    reply:  
+      plan.message ||  
+      "इस काम के लिए आपकी पुष्टि या मैन्युअल कार्रवाई जरूरी है।"  
+  });  
+}  
 
-      if (!reply) {
-        throw new Error("AI से जवाब प्राप्त नहीं हुआ।");
-      }
+// दूसरे Render Server पर Playwright चलाना  
+const browserResult = await runBrowser(  
+  url,  
+  message,  
+  plan.steps  
+);  
 
-      res.writeHead(200);
+// Browser के परिणाम को AI से समझवाना  
+const finalReply = await askAI([  
+  {  
+    role: "system",  
+    content:  
+      "Explain the browser execution result honestly in the user's language. Never claim an action succeeded unless the result confirms it."  
+  },  
+  {  
+    role: "user",  
+    content: JSON.stringify({  
+      originalTask: message,  
+      browserResult  
+    })  
+  }  
+]);  
 
-      return res.end(JSON.stringify({
-        reply: reply,
-        type: "success"
-      }));
+return send(res, 200, {  
+  type: "success",  
+  reply: finalReply,  
+  browser: browserResult  
+});
 
-    } catch (error) {
-      console.error("Server Error:", error);
+} catch (error) {
+console.error("Server Error:", error);
 
-      res.writeHead(500);
+return send(res, 500, {  
+  error: error.message || "Internal Server Error"  
+});
 
-      return res.end(JSON.stringify({
-        error: error.message || "Internal Server Error"
-      }));
-    }
-  }
-
-  res.writeHead(404);
-
-  res.end(JSON.stringify({
-    error: "Route not found"
-  }));
-
+}
 });
 
 // Start server
 server.listen(PORT, "0.0.0.0", () => {
-  console.log("OpenRouter AI Server running on port " + PORT);
+console.log(
+"OpenRouter AI Server running on port " + PORT
+);
 });
