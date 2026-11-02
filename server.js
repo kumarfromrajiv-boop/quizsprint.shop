@@ -79,25 +79,23 @@ async function runBrowser(url, task, steps) {
 if (!BROWSER_URL || !SHARED_SECRET) {
 throw new Error("Playwright Server की सेटिंग पूरी नहीं है।");
 }
+  const response = await fetch(
+    BROWSER_URL.replace(/\/$/, "") + "/api/run",
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": "Bearer " + SHARED_SECRET
+      },
+      body: JSON.stringify({
+        url,
+        task,
+        steps
+      })
+    }
+  );
 
-const response = await fetch(
-BROWSER_URL.replace(//$/, "") + "/api/run",
-{
-method: "POST",
-headers: {
-"Content-Type": "application/json",
-"Authorization": "Bearer " + SHARED_SECRET
-},
-body: JSON.stringify({
-url,
-task,
-steps
-})
-}
-);
-
-const result = await response.json();
-
+  const result = await response.json();
 if (!response.ok) {
 throw new Error(
 result.error || "Browser Server Error"
