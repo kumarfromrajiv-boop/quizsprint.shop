@@ -5,7 +5,7 @@ const API_KEY = process.env.OPENROUTER_API_KEY || "sk-live-5a74481789e240a89212a
 const BROWSER_URL = process.env.PLAYWRIGHT_SERVER_URL
 const SHARED_SECRET = process.env.BROWSER_SHARED_SECRET;
 
-const MODEL = process.env.OPENROUTER_MODEL || "openai/gpt-4o-mini";
+const MODEL = process.env.OPENROUTER_MODEL || "anthropic/claude-haiku-5.5"
 
 function send(res, status, data) {
   res.writeHead(status, {
