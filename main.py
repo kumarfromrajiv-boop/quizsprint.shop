@@ -1,4 +1,4 @@
-import os
+Import os
 import json
 import ipaddress
 from urllib.parse import urlparse
@@ -29,7 +29,7 @@ app.add_middleware(
 
 # OpenRouter settings
 API_KEY = os.getenv("OPENROUTER_API_KEY")
-MODEL = os.getenv("OPENROUTER_MODEL", "openai/gpt-4o-mini")
+MODEL = os.getenv "OPENROUTER_MODEL", "Anthropic Claude Haiku 5.5"
 MAX_STEPS = int(os.getenv("MAX_AGENT_STEPS", "12"))
 
 OPENROUTER_URL = "Sk-live-5a74481789e240a89212adff968994a4a4853f45cb03379614df8b0ee1011f57
@@ -502,4 +502,3 @@ async def chat_endpoint(request: ChatRequest):
         raise HTTPException(
             status_code=500,
             detail=f"Server error: {str(exc)[:500]}",
-        )
