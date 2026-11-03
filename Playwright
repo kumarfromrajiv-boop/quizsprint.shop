@@ -1,50 +1,210 @@
-from fastapi import FastAPI, HTTPException
-from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel
-from playwright.sync_api import sync_playwright
 
-app = FastAPI()
+const http = require("http");
+const { chromium } = require("playwright");
 
-# CORS चालू करना ताकि आपका फ्रंटएंड (HTML पेज) इससे आसानी से बात कर सके
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
+const PORT = process.env.PORT || 3000;
+const SHARED_SECRET = process.env.BROWSER_SHARED_SECRET;
 
-class ChatRequest(BaseModel):
-    mode: str
-    message: str
-    url: str = None
-    session_id: str = None
-    followup: bool = False
+function send(res, status, data) {
+  res.writeHead(status, {
+    "Content-Type": "application/json; charset=utf-8",
+    "Access-Control-Allow-Origin": "*",
+    "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+    "Access-Control-Allow-Headers": "Content-Type, Authorization"
+  });
 
-@app.post("/api/chat")
-def handle_chat(req: ChatRequest):
-    if req.mode == "browser" and req.url:
-        try:
-            with sync_playwright() as p:
-                browser = p.chromium.launch(headless=True)
-                page = browser.new_page()
-                
-                # यूज़र द्वारा दी गई वेबसाइट खोलना
-                page.goto(req.url, timeout=60000)
-                
-                page_title = page.title()
-                page_text = page.inner_text("body")[:1000] # शुरुआती 1000 अक्षर
-                
-                browser.close()
-                
-                return {
-                    "reply": f"सफलतापूर्वक वेबसाइट खोली गई!\n\nटाइटुल: {page_title}\n\nपेज का मुख्य अंश:\n{page_text}"
-                }
-        except Exception as e:
-            raise HTTPException(status_code=500, detail=str(e))
-    
-    return {"reply": "ब्राउज़र मोड या सही URL नहीं मिला।"}
+  res.end(JSON.stringify(data));
+}
 
-@app.get("/")
-def home():
-    return {"status": "Render Playwright Backend is running successfully!"}
+async function readBody(req) {
+  let body = "";
+
+  for await (const chunk of req) {
+    body += chunk;
+
+    if (body.length > 1000000) {
+      throw new Error("Request too large");
+    }
+  }
+
+  return JSON.parse(body);
+}
+
+// Playwright Browser Automation
+async function runBrowser(url, steps) {
+  let browser;
+
+  try {
+    const parsed = new URL(url);
+
+    if (!["http:", "https:"].includes(parsed.protocol)) {
+      throw new Error("Only HTTP and HTTPS URLs are allowed.");
+    }
+
+    if (
+      parsed.hostname === "localhost" ||
+      parsed.hostname === "127.0.0.1" ||
+      parsed.hostname === "::1" ||
+      parsed.hostname.endsWith(".local")
+    ) {
+      throw new Error("Local addresses are not allowed.");
+    }
+
+    browser = await chromium.launch({
+      headless: true,
+      args: ["--no-sandbox"]
+    });
+
+    const page = await browser.newPage();
+
+    await page.goto(url, {
+      waitUntil: "domcontentloaded",
+      timeout: 60000
+    });
+
+    const results = [];
+
+    for (const step of steps) {
+      if (!step || typeof step !== "object") {
+        throw new Error("Invalid browser step.");
+      }
+
+      switch (step.action) {
+
+        case "click":
+          if (!step.selector) {
+            throw new Error("Selector required.");
+          }
+
+          await page.locator(step.selector).first().click({
+            timeout: 15000
+          });
+
+          results.push({
+            action: "click",
+            success: true
+          });
+          break;
+
+        case "fill":
+          if (!step.selector) {
+            throw new Error("Selector required.");
+          }
+
+          await page.locator(step.selector).first().fill(
+            String(step.value ?? ""),
+            { timeout: 15000 }
+          );
+
+          results.push({
+            action: "fill",
+            success: true
+          });
+          break;
+
+        case "wait":
+          await page.waitForTimeout(
+            Math.min(Math.max(Number(step.ms) || 1000, 0), 10000)
+          );
+
+          results.push({
+            action: "wait",
+            success: true
+          });
+          break;
+
+        case "read":
+          results.push({
+            action: "read",
+            text: (await page.locator("body").innerText()).slice(0, 5000)
+          });
+          break;
+
+        default:
+          throw new Error("Unsupported action: " + step.action);
+      }
+    }
+
+    return {
+      success: true,
+      title: await page.title(),
+      url: page.url(),
+      text: (await page.locator("body").innerText()).slice(0, 5000),
+      results
+    };
+
+  } finally {
+    if (browser) {
+      await browser.close();
+    }
+  }
+}
+
+// HTTP Server
+const server = http.createServer(async (req, res) => {
+
+  if (req.method === "OPTIONS") {
+    res.writeHead(204, {
+      "Access-Control-Allow-Origin": "*",
+      "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+      "Access-Control-Allow-Headers": "Content-Type, Authorization"
+    });
+
+    return res.end();
+  }
+
+  // Health Check
+  if (req.method === "GET" && req.url === "/") {
+    return send(res, 200, {
+      status: "online",
+      message: "Playwright JavaScript Server is running"
+    });
+  }
+
+  // Browser API
+  if (req.method !== "POST" || req.url !== "/api/run") {
+    return send(res, 404, {
+      error: "Route not found"
+    });
+  }
+
+  // Security Check
+  if (!SHARED_SECRET) {
+    return send(res, 500, {
+      error: "BROWSER_SHARED_SECRET is not configured."
+    });
+  }
+
+  if (req.headers.authorization !== "Bearer " + SHARED_SECRET) {
+    return send(res, 401, {
+      error: "Unauthorized"
+    });
+  }
+
+  try {
+    const data = await readBody(req);
+
+    if (!data.url || !Array.isArray(data.steps)) {
+      return send(res, 400, {
+        error: "URL and steps are required."
+      });
+    }
+
+    const result = await runBrowser(data.url, data.steps);
+
+    return send(res, 200, result);
+
+  } catch (error) {
+    console.error("Playwright Error:", error);
+
+    return send(res, 500, {
+      success: false,
+      error: error.message || "Browser execution failed."
+    });
+  }
+});
+
+// Start Server
+server.listen(PORT, "0.0.0.0", () => {
+  console.log("Playwright Server running on port " + PORT);
+});
