@@ -2,7 +2,56 @@ const http = require("http");
 
 const PORT = process.env.PORT || 3000;
 const API_KEY = process.env.OPENROUTER_API_KEY; "sk-live-5a74481789e240a89212adff968994a4a4853f45cb03379614df8b0ee1011f57"
-const BROWSER_URL = process.env.PLAYWRIGHT_SERVER_URL;
+const BROWSER_URL = process.env.PLAYWRIGHT_SERVER_URL; from fastapi import FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
+from pydantic import BaseModel
+from playwright.sync_api import sync_playwright
+
+app = FastAPI()
+
+# CORS चालू करना ताकि आपका फ्रंटएंड (HTML पेज) इससे आसानी से बात कर सके
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+class ChatRequest(BaseModel):
+    mode: str
+    message: str
+    url: str = None
+    session_id: str = None
+    followup: bool = False
+
+@app.post("/api/chat")
+def handle_chat(req: ChatRequest):
+    if req.mode == "browser" and req.url:
+        try:
+            with sync_playwright() as p:
+                browser = p.chromium.launch(headless=True)
+                page = browser.new_page()
+                
+                # यूज़र द्वारा दी गई वेबसाइट खोलना
+                page.goto(req.url, timeout=60000)
+                
+                page_title = page.title()
+                page_text = page.inner_text("body")[:1000] # शुरुआती 1000 अक्षर
+                
+                browser.close()
+                
+                return {
+                    "reply": f"सफलतापूर्वक वेबसाइट खोली गई!\n\nटाइटुल: {page_title}\n\nपेज का मुख्य अंश:\n{page_text}"
+                }
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=str(e))
+    
+    return {"reply": "ब्राउज़र मोड या सही URL नहीं मिला।"}
+
+@app.get("/")
+def home():
+    return {"status": "Render Playwright Backend is running successfully!"}
 const SHARED_SECRET = process.env.BROWSER_SHARED_SECRET;
 
 const MODEL = process.env.OPENROUTER_MODEL || "openai/gpt-4o-mini";
