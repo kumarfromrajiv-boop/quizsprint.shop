@@ -1,8 +1,8 @@
 const http = require("http");
 
 const PORT = process.env.PORT || 3000;
-const API_KEY = process.env.OPENROUTER_API_KEY; "sk-live-5a74481789e240a89212adff968994a4a4853f45cb03379614df8b0ee1011f57"
-const BROWSER_URL = process.env.PLAYWRIGHT_SERVER_URL;
+const API_KEY = process.env.OPENROUTER_API_KEY || "sk-live-5a74481789e240a89212adff968994a4a4853f45cb03379614df8b0ee1011f57";
+const BROWSER_URL = process.env.PLAYWRIGHT_SERVER_URL
 const SHARED_SECRET = process.env.BROWSER_SHARED_SECRET;
 
 const MODEL = process.env.OPENROUTER_MODEL || "openai/gpt-4o-mini";
