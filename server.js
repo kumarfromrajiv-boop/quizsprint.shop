@@ -4,7 +4,7 @@ const PORT = process.env.PORT || 3000;
 const API_KEY = process.env.OPENROUTER_API_KEY || "sk-live-73b7ac7c9246b79f77886debd7ac281b3e996b7700b0dc781ce04b51b4450ece"
 const BROWSER_URL = process.env.PLAYWRIGHT_SERVER_URL;
 const SHARED_SECRET = process.env.BROWSER_SHARED_SECRET;
-
+RENDER_API_KEY = https://quizsprint-shop-2-0q56.onrender.com
 const MODEL = process.env.OPENROUTER_MODEL || "anthropic/claude-haiku-5.5";
 
 function send(res, status, data) {
