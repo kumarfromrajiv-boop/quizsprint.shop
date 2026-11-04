@@ -45,7 +45,7 @@ async function askAI(messages) {
       headers: {
         "Authorization": "Bearer " + API_KEY,
         "Content-Type": "application/json",
-        "HTTP-Referer": "https://quizsprint-shop-1-zsbx.onrender.com"
+        "HTTP-Referer": "https://quizsprint-shop-1-zsbx.onrender.com",
         "X-Title": "AI Studio"
       },
       body: JSON.stringify({
