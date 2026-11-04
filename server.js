@@ -1,11 +1,11 @@
-const http = require("http");
+Const http = require("http");
 
 const PORT = process.env.PORT || 3000;
 const API_KEY = process.env.OPENROUTER_API_KEY || "sk-live-5a74481789e240a89212adff968994a4a4853f45cb03379614df8b0ee1011f57";
-const BROWSER_URL = process.env.PLAYWRIGHT_SERVER_URL
+const BROWSER_URL = process.env.PLAYWRIGHT_SERVER_URL;
 const SHARED_SECRET = process.env.BROWSER_SHARED_SECRET;
 
-const MODEL = process.env.OPENROUTER_MODEL || "anthropic/claude-haiku-5.5"
+const MODEL = process.env.OPENROUTER_MODEL || "anthropic/claude-haiku-5.5";
 
 function send(res, status, data) {
   res.writeHead(status, {
@@ -119,16 +119,21 @@ const server = http.createServer(async (req, res) => {
     return res.end();
   }
 
+  // URL साफ करें ताकि स्लैश की वजह से दिक्कत न हो
+  const baseUrl = "http://" + (req.headers.host || "localhost");
+  const parsedUrl = new URL(req.url, baseUrl);
+  const pathname = parsedUrl.pathname.replace(/\/$/, "");
+
   // Health check
-  if (req.method === "GET" && req.url === "/") {
+  if (req.method === "GET" && (pathname === "" || pathname === "/health")) {
     return send(res, 200, {
       status: "online",
       message: "OpenRouter AI Server is running"
     });
   }
 
-  // Chat API
-  if (req.method !== "POST" || req.url !== "/api/chat") {
+  // Chat API - अब यह /api/chat को सही से पकड़ लेगा
+  if (req.method !== "POST" || pathname !== "/api/chat") {
     return send(res, 404, {
       error: "Route not found"
     });
