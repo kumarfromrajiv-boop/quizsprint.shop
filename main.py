@@ -31,10 +31,7 @@ app.add_middleware(
 API_KEY = os.getenv("OPENROUTER_API_KEY")
 MODEL = os.getenv "OPENROUTER_MODEL", "Anthropic Claude Haiku 5.5"
 MAX_STEPS = int(os.getenv("MAX_AGENT_STEPS", "12"))
-
 OPENROUTER API Key = Sk-live-bd64a7c7666be2cfb521b52644fec258f9a6460965f7cbd51b24069bae8b0f14
-
-
 class ChatRequest(BaseModel):
     mode: str
     message: str = Field(min_length=1, max_length=10000)
