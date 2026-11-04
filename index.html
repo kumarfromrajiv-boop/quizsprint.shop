@@ -154,14 +154,15 @@
   mode.addEventListener("change", updateMode);
   updateMode();
 
-  // Page navigation
+    // Page navigation (Naye Page par smooth scroll aur switch karne ke liye)
   function showPage(name) {
     const result = name === "result";
 
     pageForm.hidden = result;
     pageResult.hidden = !result;
 
-    window.scrollTo({ top: 0 });
+    // Turant naye page ke bilkul top (upar) par screen le jaane ke liye
+    window.scrollTo(0, 0);
   }
 
   function goToResult() {
@@ -169,7 +170,7 @@
 
     try {
       if (location.hash !== "#result") {
-        history.pushState(null, "", "#result");
+        history.pushState({ page: "result" }, "", "#result");
       }
     } catch (e) {}
   }
@@ -179,10 +180,20 @@
 
     try {
       if (location.hash === "#result") {
-        history.back();
+        history.pushState({ page: "form" }, "", window.location.pathname);
       }
     } catch (e) {}
   }
+
+  // Mobile/Browser ka Back Button dabane par wapas purane page par aane ke liye
+  window.addEventListener("popstate", function(event) {
+    if (location.hash === "#result") {
+      showPage("result");
+    } else {
+      showPage("form");
+    }
+  });
+
 
   // Add conversation pair
   function addPair(userText) {
