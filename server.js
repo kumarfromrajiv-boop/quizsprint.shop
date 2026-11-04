@@ -1,7 +1,7 @@
 const http = require("http");
 
 const PORT = process.env.PORT || 3000;
-const API_KEY = process.env.OPENROUTER_API_KEY || "Sk-live-bd64a7c7666be2cfb521b52644fec258f9a6460965f7cbd51b24069bae8b0f14
+const API_KEY = process.env.OPENROUTER_API_KEY || "sk-live-bd64a7c7666be2cfb521b52644fec258f9a6460965f7cbd51b24069bae8b0f14";
 const BROWSER_URL = process.env.PLAYWRIGHT_SERVER_URL;
 const SHARED_SECRET = process.env.BROWSER_SHARED_SECRET;
 
